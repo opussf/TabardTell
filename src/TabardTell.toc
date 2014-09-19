@@ -1,0 +1,8 @@
+## Interface: 50400
+## Title: Tabard Tell
+## Notes: Shows your current rep for the Tabard faction in the tooltip
+## Author: sistersally of hyjal
+## Version: @VERSION@
+## Description: Shows your current rep for the Tabard faction in the tooltip
+TabardTell.lua
+TabardTell.xml
