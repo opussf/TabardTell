@@ -5,7 +5,7 @@ addonData = { ["version"] = "1.0",
 
 require "wowTest"
 
-test.outFileName = "../dest/testOut.xml"
+test.outFileName = "testOut.xml"
 
 
 -- Figure out how to parse the XML here, until then....

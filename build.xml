@@ -74,10 +74,18 @@
 	</target>
 
 	<target name="test" description="run unit tests" if="test.check">
-		<mkdir dir="dest"/>
-		<exec executable="lua" dir="test">
+		<mkdir  dir="${report.dir}"/>
+		<exec executable="lua" dir="test" resultproperty="testResult">
 			<arg value="test.lua"/>
 		</exec>
+		<move todir="${report.dir}" file="${test.dir}/testOut.xml"/>
+		<fail message="The tests failed. Please see the output for details.">
+			<condition>
+				<not>
+					<equals arg1="${testResult}" arg2="0"/>
+				</not>
+			</condition>
+		</fail>
 	</target>
 
 	<target name="deploy" depends="deploy.check" description="deploys the file" if="deploy.run">
