@@ -1,6 +1,6 @@
-## Interface: 50400
+## Interface: @INTERFACE@
 ## Title: Tabard Tell
-## Notes: Shows your current rep for the Tabard faction in the tooltip
+## Notes: Shows your current rep for the Tabard faction in the tooltip @VERSION@
 ## Author: sistersally of hyjal
 ## Version: @VERSION@
 ## Description: Shows your current rep for the Tabard faction in the tooltip
