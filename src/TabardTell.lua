@@ -126,11 +126,11 @@ function TT.PLAYER_ENTERING_WORLD()
 		end
 	else
 		if TT_equippedTabbard then
-			if TT_options.changeVerbose then TT.Print("I should re-equip: "..TT_equippedTabbard); end
+			if TT_options.changeVerbose then TT.Print("Re-equipping: "..TT_equippedTabbard); end
 			EquipItemByName( TT_equippedTabbard )
 			TT_equippedTabbard = nil
 		else
-			if TT_options.changeVerbose then TT.Print("I should remove the equipped tabard"); end
+			if TT_options.changeVerbose then TT.Print("Removing the equipped tabard"); end
 			ClearCursor()
 			local freeBagId = TT.getFreeBag()
 			if freeBagId then
