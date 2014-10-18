@@ -142,8 +142,12 @@ function TT.PLAYER_ENTERING_WORLD()
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
-		TT.Print("Equipping: "..TT.tabards[1]["link"])
-		EquipItemByName( TT.tabards[1]["link"] )
+		if TT.tabards[1] then
+			TT.Print("Equipping: "..TT.tabards[1]["link"])
+			EquipItemByName( TT.tabards[1]["link"] )
+		else
+			TT.Print("Found no valid tabards to equip")
+		end
 	else
 		if TT_equippedTabbard then
 			TT.Print("I should re-equip: "..TT_equippedTabbard)
