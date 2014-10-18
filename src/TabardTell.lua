@@ -151,37 +151,32 @@ function TT.PLAYER_ENTERING_WORLD()
 			TT_equippedTabbard = nil
 		else
 			TT.Print("I should remove the equipped tabard")
-			--ClearCursor()
+			ClearCursor()
+			local freeBagId = TT.getFreeBag()
+			if freeBagId then
+				local slotNum = GetInventorySlotInfo("TabardSlot")
+				PickupInventoryItem( slotNum )
+				if freeBagId == 0 then
+					PutItemInBackpack()
+				else
+					PutItemInBag(freeBagId+19)
+				end
+			else
+				TT.Print("Unable to remove tabard.")
+			end
 		end
 	end
 	-- EquipItemByName( Stripper.targetSetItemArray[i], i )
 	--Stripper.RemoveFromSlot( "TabardSlot", true )
 end
-
---[[
-function Stripper.RemoveFromSlot( slotName, report )
-	ClearCursor()
-	local freeBagId = Stripper.getFreeBag()
-	--Stripper.Print("Found a free bag: "..freeBagId);
-	if freeBagId then
-		local slotNum = GetInventorySlotInfo( slotName )
-		--Stripper.Print(slotName..":"..slotNum..":"..(GetInventoryItemLink("player",slotNum) or "nil"))
-		if report then
-			Stripper.Print("Removing "..GetInventoryItemLink("player",slotNum) )
-		end
-		PickupInventoryItem(slotNum)
-		if freeBagId == 0 then
-			PutItemInBackpack()
-		else
-			PutItemInBag(freeBagId+19)
-		end
-		return true
-	else
-		if report then
-			Stripper.Print("No more stripping for you.  Inventory is full");
+function TT.getFreeBag()
+	-- http://www.wowwiki.com/BagId
+	local freeid, typeid
+	for bagid = NUM_BAG_SLOTS, 0, -1 do
+		freeid, typeid = GetContainerNumFreeSlots(bagid)
+		if  freeid > 0 and typeid == 0 then
+			return bagid
 		end
 	end
 	return nil
-
 end
-]]
