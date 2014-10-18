@@ -1,0 +1,81 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+
+	<Frame name="TabardTellOptionsFrame">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parent_Title" inherits="GameFontNormalLarge">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset><AbsDimension x="16" y="-16"/></Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parent_changeEnabled" inherits="OptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_Title" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.tooltip = "Check this to auto enable tabard changes when entering an instance.";
+					</OnLoad>
+					<OnShow>
+						TT.OptionsPanel_CheckButton_OnLoad(self,"changeEnabled","Auto Change a Tabard");
+					</OnShow>
+					<PostClick>
+						TT.OptionsPanel_CheckButton_PostClick(self,"changeEnabled")
+					</PostClick>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+						GameTooltip:SetText(self.tooltip);
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+			<CheckButton name="$parent_changeVerbose" inherits="OptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_changeEnabled" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="0" y="-20"></AbsDimension>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.tooltip = "Be Verbose when auto changing a tabard";
+					</OnLoad>
+					<OnShow>
+						TT.OptionsPanel_CheckButton_OnLoad(self,"changeVerbose","Verbose Tabard Change");
+					</OnShow>
+					<PostClick>
+						TT.OptionsPanel_CheckButton_PostClick(self,"changeVerbose")
+					</PostClick>
+					<OnEnter>
+						GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+						GameTooltip:SetText(self.tooltip);
+					</OnEnter>
+					<OnLeave>
+						GameTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</CheckButton>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				TT.OptionsPanel_OnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>
