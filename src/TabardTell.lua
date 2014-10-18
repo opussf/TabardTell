@@ -15,8 +15,9 @@ function TT.OnLoad()
 	GameTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
 	ItemRefTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
 
-	--TTFrame:RegisterEvent("BAG_UPDATE")
-	TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	if TT_options.changeEnabled then
+		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	end
 end
 function TT.GetEquipTextFromToolTip()
 	for _,i in pairs(TT.lines) do
@@ -78,38 +79,14 @@ end
 ------------
 -- Equip Code
 ------------
-function TT.BAG_UPDATE()
-	TT.Print("BAG_UPDATE")
-	TT.tabards = {}
-	for bag = 0, 4 do
-		if GetContainerNumSlots(bag) > 0 then
-			for slot = 0, GetContainerNumSlots(bag) do
-				--local itemID = GetContainerItemID( bag, slot )
-				local link = GetContainerItemLink( bag, slot )
-				if link then
-					local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
-					if equipSlot and equipSlot == "INVTYPE_TABARD" then
-						local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
-						TT.GetFactionInfo( factionName )
-						TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
-						table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
-					end
-				end
-			end
-		end
-	end
-	table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
-	TT.Print("You should equip: "..TT.tabards[1]["link"] )
-end
 function TT.PLAYER_ENTERING_WORLD()
-	local inInstance, instanceType = IsInInstance()
+	local inInstance = IsInInstance()
 	if inInstance then
-		TT.Print("You have entered an Instance")
+		if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
 		TT.tabards = {}
 		for bag = 0, 4 do
 			if GetContainerNumSlots(bag) > 0 then
 				for slot = 0, GetContainerNumSlots(bag) do
-					--local itemID = GetContainerItemID( bag, slot )
 					local link = GetContainerItemLink( bag, slot )
 					if link then
 						local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
@@ -117,7 +94,6 @@ function TT.PLAYER_ENTERING_WORLD()
 							local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 							TT.GetFactionInfo( factionName )
 							if TT.fName == factionName then
-								--TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
 								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 							end
 						end
@@ -131,30 +107,30 @@ function TT.PLAYER_ENTERING_WORLD()
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 			TT.GetFactionInfo( factionName )
-			TT.Print(TT.fName.."=?"..name..":"..factionName..":"..TT.fEarnedValue)
 			if TT.fName == factionName then
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
-			TT.Print(link.." is equipped")
+			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
 			if not TT_equippedTabbard then  -- if set, don't overwrite
 				TT_equippedTabbard = link
 			end
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
+
 		if TT.tabards[1] then
-			TT.Print("Equipping: "..TT.tabards[1]["link"])
+			if TT_options.changeVerbose then TT.Print("Equipping: "..TT.tabards[1]["link"]); end
 			EquipItemByName( TT.tabards[1]["link"] )
 		else
-			TT.Print("Found no valid tabards to equip")
+			if TT_options.changeVerbose then TT.Print("Found no valid tabards to equip"); end
 		end
 	else
 		if TT_equippedTabbard then
-			TT.Print("I should re-equip: "..TT_equippedTabbard)
+			if TT_options.changeVerbose then TT.Print("I should re-equip: "..TT_equippedTabbard); end
 			EquipItemByName( TT_equippedTabbard )
 			TT_equippedTabbard = nil
 		else
-			TT.Print("I should remove the equipped tabard")
+			if TT_options.changeVerbose then TT.Print("I should remove the equipped tabard"); end
 			ClearCursor()
 			local freeBagId = TT.getFreeBag()
 			if freeBagId then
@@ -166,7 +142,7 @@ function TT.PLAYER_ENTERING_WORLD()
 					PutItemInBag(freeBagId+19)
 				end
 			else
-				TT.Print("Unable to remove tabard.")
+				TT.Print("Unable to remove equipped tabard.  Bags are full.")
 			end
 		end
 	end
