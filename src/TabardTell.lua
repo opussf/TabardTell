@@ -5,8 +5,6 @@ TT_MSG_ADDONNAME = "Tabard Tell";
 COLOR_RED = "|cffff0000";
 COLOR_END = "|r";
 
-TT_ignored = {}
-
 TT = {}
 TT.errorString = "Unfold all of the faction groups to see your standing for this faction.";
 TT.TABARD_EQUIP_FILTER = "Equip:";
