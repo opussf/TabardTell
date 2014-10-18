@@ -5,7 +5,9 @@ TT_MSG_ADDONNAME = "Tabard Tell";
 COLOR_RED = "|cffff0000";
 COLOR_END = "|r";
 
-TT = {};
+TT_ignored = {}
+
+TT = {}
 TT.errorString = "Unfold all of the faction groups to see your standing for this faction.";
 TT.TABARD_EQUIP_FILTER = "Equip:";
 TT.TABARD_FACTION_FILTER = "the cause of [the ]*([%u%l%s]+)."  -- 0 or more 'the ', upper, lower, spaces till '.'
@@ -116,8 +118,10 @@ function TT.PLAYER_ENTERING_WORLD()
 						if equipSlot and equipSlot == "INVTYPE_TABARD" then
 							local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 							TT.GetFactionInfo( factionName )
-							--TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
-							table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+							if TT.fName == factionName then
+								--TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
+								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+							end
 						end
 					end
 				end
@@ -129,20 +133,24 @@ function TT.PLAYER_ENTERING_WORLD()
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 			TT.GetFactionInfo( factionName )
-			--TT.Print(name..":"..factionName..":"..TT.fEarnedValue)
-			table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+			TT.Print(TT.fName.."=?"..name..":"..factionName..":"..TT.fEarnedValue)
+			if TT.fName == factionName then
+				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+			end
 			TT.Print(link.." is equipped")
-			TT.equippedTabbard = link
+			if not TT_equippedTabbard then  -- if set, don't overwrite
+				TT_equippedTabbard = link
+			end
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
 		TT.Print("Equipping: "..TT.tabards[1]["link"])
 		EquipItemByName( TT.tabards[1]["link"] )
 	else
-		if TT.equippedTabbard then
-			TT.Print("I should re-equip: "..TT.equippedTabbard)
-			EquipItemByName( TT.equippedTabbard )
-			TT.equippedTabbard = nil
+		if TT_equippedTabbard then
+			TT.Print("I should re-equip: "..TT_equippedTabbard)
+			EquipItemByName( TT_equippedTabbard )
+			TT_equippedTabbard = nil
 		else
 			TT.Print("I should remove the equipped tabard")
 			--ClearCursor()
