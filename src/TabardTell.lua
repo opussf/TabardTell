@@ -132,14 +132,21 @@ function TT.PLAYER_ENTERING_WORLD()
 			--TT.Print(name..":"..factionName..":"..TT.fEarnedValue)
 			table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			TT.Print(link.." is equipped")
+			TT.equippedTabbard = link
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
 		TT.Print("Equipping: "..TT.tabards[1]["link"])
 		EquipItemByName( TT.tabards[1]["link"] )
 	else
-		TT.Print("I should remove the equipped tabard")
-		--ClearCursor()
+		if TT.equippedTabbard then
+			TT.Print("I should re-equip: "..TT.equippedTabbard)
+			EquipItemByName( TT.equippedTabbard )
+			TT.equippedTabbard = nil
+		else
+			TT.Print("I should remove the equipped tabard")
+			--ClearCursor()
+		end
 	end
 	-- EquipItemByName( Stripper.targetSetItemArray[i], i )
 	--Stripper.RemoveFromSlot( "TabardSlot", true )
