@@ -14,16 +14,15 @@ TT.lines = {5,6,7};  -- lines of the tooltip to examine
 function TT.OnLoad()
 	GameTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
 	ItemRefTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
-
-	if TT_options.changeEnabled then
-		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-	end
 	TTFrame:RegisterEvent("ADDON_LOADED")
 end
 function TT.ADDON_LOADED()
 	TTFrame:UnregisterEvent("ADDON_LOADED");
 	TT.OptionsPanel_Reset();
 	TT.Print("Loaded version: "..TT_MSG_VERSION)
+	if TT_options.changeEnabled then
+		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	end
 end
 
 function TT.GetEquipTextFromToolTip()
