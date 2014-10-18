@@ -6,7 +6,7 @@ TT_options = {
 
 function TT.OptionsPanel_OnLoad(panel)
 	panel.name = "Tabard Tell";
-	FactionBarsOptionsFrame_Title:SetText(FB_MSG_ADDONNAME.." "..FB_MSG_VERSION);
+	TabardTellOptionsFrame_Title:SetText(FB_MSG_ADDONNAME.." "..FB_MSG_VERSION);
 	--panel.parent="";
 	panel.okay = TT.OptionsPanel_OKAY;
 	panel.cancel = TT.OptionsPanel_Cancel;

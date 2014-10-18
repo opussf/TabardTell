@@ -18,7 +18,14 @@ function TT.OnLoad()
 	if TT_options.changeEnabled then
 		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
+	TTFrame:RegisterEvent("ADDON_LOADED")
 end
+function TT.ADDON_LOADED()
+	TTFrame:UnregisterEvent("ADDON_LOADED");
+	TT.OptionsPanel_Reset();
+	TT.Print("Loaded version: "..TT_MSG_VERSION)
+end
+
 function TT.GetEquipTextFromToolTip()
 	for _,i in pairs(TT.lines) do
 		TT.text = getglobal("GameTooltipTextLeft"..i):GetText();

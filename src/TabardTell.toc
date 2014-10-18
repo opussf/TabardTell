@@ -5,7 +5,7 @@
 ## Version: @VERSION@
 ## Description: Shows your current rep for the Tabard faction in the tooltip
 ## SavedVariablesPerCharacter: TT_equippedTabbard TT_options
-TabardTellOptions.lua
-TabardTellOptions.xml
 TabardTell.lua
 TabardTell.xml
+TabardTellOptions.lua
+TabardTellOptions.xml
