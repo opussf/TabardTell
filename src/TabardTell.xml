@@ -1,13 +1,16 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
 	<Script file="TabardTell.lua"/>
 	<!-- Version 2.0 -->
-	
+
 	<Frame name="TTFrame" frameStrata="BACKGROUND" toplevel="false" parent="UIParent" enableMouse="false" movable="false">
 		<Scripts>
 			<OnLoad>
 				TT.OnLoad();
 			</OnLoad>
+			<OnEvent>
+				TT[event](...);
+			</OnEvent>
 		</Scripts>
 	</Frame>
 </Ui>

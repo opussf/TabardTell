@@ -14,6 +14,9 @@ TT.lines = {5,6,7};  -- lines of the tooltip to examine
 function TT.OnLoad()
 	GameTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
 	ItemRefTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
+
+	--TTFrame:RegisterEvent("BAG_UPDATE")
+	TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 end
 function TT.GetEquipTextFromToolTip()
 	for _,i in pairs(TT.lines) do
@@ -45,7 +48,6 @@ function TT.HookSetItem(tooltip, ...)
 		end
 	end
 end
-
 -- return a list of faction info
 function TT.GetFactionInfo( factionNameIn )
 	for factionIndex = 1, GetNumFactions() do
@@ -73,3 +75,100 @@ function TT.Print( msg, showName)
 	end
 	DEFAULT_CHAT_FRAME:AddMessage( msg );
 end
+------------
+-- Equip Code
+------------
+function TT.BAG_UPDATE()
+	TT.Print("BAG_UPDATE")
+	TT.tabards = {}
+	for bag = 0, 4 do
+		if GetContainerNumSlots(bag) > 0 then
+			for slot = 0, GetContainerNumSlots(bag) do
+				--local itemID = GetContainerItemID( bag, slot )
+				local link = GetContainerItemLink( bag, slot )
+				if link then
+					local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
+					if equipSlot and equipSlot == "INVTYPE_TABARD" then
+						local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+						TT.GetFactionInfo( factionName )
+						TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
+						table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+					end
+				end
+			end
+		end
+	end
+	table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
+	TT.Print("You should equip: "..TT.tabards[1]["link"] )
+end
+function TT.PLAYER_ENTERING_WORLD()
+	local inInstance, instanceType = IsInInstance()
+	if inInstance then
+		TT.Print("You have entered an Instance")
+		TT.tabards = {}
+		for bag = 0, 4 do
+			if GetContainerNumSlots(bag) > 0 then
+				for slot = 0, GetContainerNumSlots(bag) do
+					--local itemID = GetContainerItemID( bag, slot )
+					local link = GetContainerItemLink( bag, slot )
+					if link then
+						local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
+						if equipSlot and equipSlot == "INVTYPE_TABARD" then
+							local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+							TT.GetFactionInfo( factionName )
+							--TT.Print(bag..":"..slot..":"..name..":"..factionName..":"..TT.fEarnedValue)
+							table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+						end
+					end
+				end
+			end
+		end
+		local slotNum = GetInventorySlotInfo("TabardSlot");
+		local link = GetInventoryItemLink( "player", slotNum )
+		if link then
+			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
+			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+			TT.GetFactionInfo( factionName )
+			--TT.Print(name..":"..factionName..":"..TT.fEarnedValue)
+			table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
+			TT.Print(link.." is equipped")
+		end
+
+		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
+		TT.Print("Equipping: "..TT.tabards[1]["link"])
+		EquipItemByName( TT.tabards[1]["link"] )
+	else
+		TT.Print("I should remove the equipped tabard")
+		--ClearCursor()
+	end
+	-- EquipItemByName( Stripper.targetSetItemArray[i], i )
+	--Stripper.RemoveFromSlot( "TabardSlot", true )
+end
+
+--[[
+function Stripper.RemoveFromSlot( slotName, report )
+	ClearCursor()
+	local freeBagId = Stripper.getFreeBag()
+	--Stripper.Print("Found a free bag: "..freeBagId);
+	if freeBagId then
+		local slotNum = GetInventorySlotInfo( slotName )
+		--Stripper.Print(slotName..":"..slotNum..":"..(GetInventoryItemLink("player",slotNum) or "nil"))
+		if report then
+			Stripper.Print("Removing "..GetInventoryItemLink("player",slotNum) )
+		end
+		PickupInventoryItem(slotNum)
+		if freeBagId == 0 then
+			PutItemInBackpack()
+		else
+			PutItemInBag(freeBagId+19)
+		end
+		return true
+	else
+		if report then
+			Stripper.Print("No more stripping for you.  Inventory is full");
+		end
+	end
+	return nil
+
+end
+]]
