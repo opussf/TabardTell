@@ -1,5 +1,5 @@
-TT_MSG_VERSION = GetAddOnMetadata("Tabard Tell","Version");
-TT_MSG_ADDONNAME = "Tabard Tell";
+TT_MSG_VERSION = GetAddOnMetadata("TabardTell","Version");
+TT_MSG_ADDONNAME = "TabardTell";
 
 -- Colours
 COLOR_RED = "|cffff0000";
@@ -19,10 +19,10 @@ end
 function TT.ADDON_LOADED()
 	TTFrame:UnregisterEvent("ADDON_LOADED");
 	TT.OptionsPanel_Reset();
-	TT.Print("Loaded version: "..TT_MSG_VERSION)
 	if TT_options.changeEnabled then
 		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	end
+	TT.Print("Loaded version: "..TT_MSG_VERSION)
 end
 
 function TT.GetEquipTextFromToolTip()
