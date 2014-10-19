@@ -1,8 +1,11 @@
 ## Interface: @INTERFACE@
-## Title: Tabard Tell
+## Title: TabardTell
 ## Notes: Shows your current rep for the Tabard faction in the tooltip @VERSION@
 ## Author: sistersally of hyjal
 ## Version: @VERSION@
 ## Description: Shows your current rep for the Tabard faction in the tooltip
+## SavedVariablesPerCharacter: TT_equippedTabbard TT_options
 TabardTell.lua
 TabardTell.xml
+TabardTellOptions.lua
+TabardTellOptions.xml
