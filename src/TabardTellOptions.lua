@@ -3,10 +3,9 @@ TT_options = {
 	["changeVerbose"] = true,
 }
 
-
 function TT.OptionsPanel_OnLoad(panel)
 	panel.name = "Tabard Tell";
-	TabardTellOptionsFrame_Title:SetText(FB_MSG_ADDONNAME.." "..FB_MSG_VERSION);
+	TabardTellOptionsFrame_Title:SetText(TT_MSG_ADDONNAME.." "..TT_MSG_VERSION);
 	--panel.parent="";
 	panel.okay = TT.OptionsPanel_OKAY;
 	panel.cancel = TT.OptionsPanel_Cancel;
@@ -51,7 +50,7 @@ end
 -------
 function TT.OptionsPanel_CheckButton_OnLoad( self, option, text )
 	getglobal(self:GetName().."Text"):SetText(text);
-	self:SetChecked(FB_options[option]);
+	self:SetChecked(TT_options[option]);
 end
 function TT.OptionsPanel_CheckButton_PostClick( self, option )
 	if TT.oldValues then
