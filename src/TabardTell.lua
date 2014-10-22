@@ -87,6 +87,7 @@ end
 ------------
 function TT.PLAYER_ENTERING_WORLD()
 	local inInstance = IsInInstance()
+	local foundFactionName
 	if inInstance then
 		if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
 		TT.tabards = {}
@@ -98,8 +99,8 @@ function TT.PLAYER_ENTERING_WORLD()
 						local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 						if equipSlot and equipSlot == "INVTYPE_TABARD" then
 							local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
-							TT.GetFactionInfo( factionName )
-							if TT.fName == factionName then
+							foundFactionName =  TT.GetFactionInfo( factionName )
+							if foundFactionName then
 								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 							end
 						end
@@ -112,8 +113,8 @@ function TT.PLAYER_ENTERING_WORLD()
 		if link then
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
-			TT.GetFactionInfo( factionName )
-			if TT.fName == factionName then
+			local foundFactionName = TT.GetFactionInfo( factionName )
+			if foundFactionName then
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
 			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
