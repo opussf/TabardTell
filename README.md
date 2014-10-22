@@ -18,7 +18,8 @@ Install the addon, mouse over a tabard in your inventory.
 
 ## Versions
 ```
+0.8.1  Fixed bug with Darkspear Tabard (Darkspear Trolls rep) not equiping
 0.8    Wrapping in an Instance Auto Equip
-       ^^ Will need to create a configuration system to turn it on or off.
+       Super Simple configuration system to turn it on or off.
 0.7.1  WoD update
 0.7    Last version before WoD
