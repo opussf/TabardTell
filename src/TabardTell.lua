@@ -121,6 +121,10 @@ function TT.PLAYER_ENTERING_WORLD()
 			if not TT_equippedTabbard then  -- if set, don't overwrite
 				TT_equippedTabbard = link
 			end
+		else -- no link for equipped tabard when entering instance
+			if not TT_equippedTabbard then
+				TT_equippedTabbard = "None"
+			end
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
@@ -132,7 +136,7 @@ function TT.PLAYER_ENTERING_WORLD()
 			if TT_options.changeVerbose then TT.Print("Found no valid tabards to equip"); end
 		end
 	else
-		if TT_equippedTabbard then
+		if TT_equippedTabbard and TT_equippedTabbard ~= "None" then
 			if TT_options.changeVerbose then TT.Print("Re-equipping: "..TT_equippedTabbard); end
 			EquipItemByName( TT_equippedTabbard )
 			TT_equippedTabbard = nil
