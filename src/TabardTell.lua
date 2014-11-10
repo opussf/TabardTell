@@ -57,20 +57,22 @@ function TT.HookSetItem(tooltip, ...)
 end
 -- return a list of faction info
 function TT.GetFactionInfo( factionNameIn )
-	for factionIndex = 1, GetNumFactions() do
-		TT.fName, TT.fDescription, TT.fStandingId, TT.fBottomValue, TT.fTopValue, TT.fEarnedValue, TT.fAtWarWith,
-				TT.fCanToggleAtWar, TT.fIsHeader, TT.fIsCollapsed, TT.fIsWatched = GetFactionInfo(factionIndex);
-		if TT.fIsCollapsed then
-			ExpandFactionHeader(factionIndex);
-		end
-		TT.fBarBottomValue = 0;
-		TT.fBarTopValue = TT.fTopValue - TT.fBottomValue;
-		TT.fBarEarnedValue = TT.fEarnedValue - TT.fBottomValue;
-		TT.fStandingStr = getglobal("FACTION_STANDING_LABEL"..TT.fStandingId);
+	if factionNameIn then  --  Don't error out if param is nil
+		for factionIndex = 1, GetNumFactions() do
+			TT.fName, TT.fDescription, TT.fStandingId, TT.fBottomValue, TT.fTopValue, TT.fEarnedValue, TT.fAtWarWith,
+					TT.fCanToggleAtWar, TT.fIsHeader, TT.fIsCollapsed, TT.fIsWatched = GetFactionInfo(factionIndex);
+			if TT.fIsCollapsed then
+				ExpandFactionHeader(factionIndex);
+			end
+			TT.fBarBottomValue = 0;
+			TT.fBarTopValue = TT.fTopValue - TT.fBottomValue;
+			TT.fBarEarnedValue = TT.fEarnedValue - TT.fBottomValue;
+			TT.fStandingStr = getglobal("FACTION_STANDING_LABEL"..TT.fStandingId);
 
-		if not TT.fIsHeader and strfind(TT.fName, factionNameIn) then
-			return TT.fName, TT.fDescription, TT.fStandingStr, TT.fBarBottomValue, TT.fBarTopValue, TT.fBarEarnedValue,
-					TT.fAtWarWith, TT.fCanToggleAtWar, TT.fIsHeader, TT.fIsCollapsed, TT.fIsWatched, factionIndex;
+			if not TT.fIsHeader and strfind(TT.fName, factionNameIn) then
+				return TT.fName, TT.fDescription, TT.fStandingStr, TT.fBarBottomValue, TT.fBarTopValue, TT.fBarEarnedValue,
+						TT.fAtWarWith, TT.fCanToggleAtWar, TT.fIsHeader, TT.fIsCollapsed, TT.fIsWatched, factionIndex;
+			end
 		end
 	end
 end
@@ -99,6 +101,10 @@ function TT.PLAYER_ENTERING_WORLD()
 						local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 						if equipSlot and equipSlot == "INVTYPE_TABARD" then
 							local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+							if not factionName then
+								_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
+							end
+							TT.Print("name: "..name.." FactionName: "..(factionName and factionName or "Nil"))
 							foundFactionName =  TT.GetFactionInfo( factionName )
 							if foundFactionName then
 								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
@@ -113,6 +119,9 @@ function TT.PLAYER_ENTERING_WORLD()
 		if link then
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+			if not factionName then
+				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
+			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
 			if foundFactionName then
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
