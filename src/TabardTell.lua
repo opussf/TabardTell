@@ -104,7 +104,7 @@ function TT.PLAYER_ENTERING_WORLD()
 							if not factionName then
 								_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 							end
-							TT.Print("name: "..name.." FactionName: "..(factionName and factionName or "Nil"))
+							--TT.Print("name: "..name.." FactionName: "..(factionName and factionName or "Nil"))
 							foundFactionName =  TT.GetFactionInfo( factionName )
 							if foundFactionName then
 								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )

@@ -19,6 +19,7 @@ Install the addon, mouse over a tabard in your inventory.
 
 ## Versions
 ```
+0.8.2  Removing Debug print statements showing tabards in inventory
 0.8.1  Fixed bug with Darkspear Tabard (Darkspear Trolls rep) not equiping
 0.8    Wrapping in an Instance Auto Equip
        Super Simple configuration system to turn it on or off.
