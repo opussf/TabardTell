@@ -1,7 +1,8 @@
-Tabard Tell
+[![Build Status](https://travis-ci.org/opussf/TabardTell.svg?branch=master)](https://travis-ci.org/opussf/TabardTell)
 =====
 
-[![Build Status](https://travis-ci.org/opussf/TabardTell.svg?branch=master)](https://travis-ci.org/opussf/TabardTell)
+Tabard Tell
+=====
 
 This addon shows the faction's reputation in the tooltip for the respective tabard.
 
