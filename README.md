@@ -6,6 +6,8 @@ Tabard Tell
 
 This addon shows the faction's reputation in the tooltip for the respective tabard.
 
+As of v0.8, it will also find and equip a tabard in your inventory with the lowest reuputation.
+
 ## Idea:
 I got tired of looking in the reputation frame to figure out which tabard I wanted to wear.
 And it just sort of made sense.
@@ -16,6 +18,11 @@ And it just sort of made sense.
 
 ## How to use:
 Install the addon, mouse over a tabard in your inventory.
+
+## Known bugs:
+The equip does not work if you zone into a dungeon, and the dungeon group is in combat.
+A fix for this would be to check the equipped tabard and try again in a few seconds.
+Or to check for reasons why it cannot be equipped and equip it after those reasons are gone.
 
 ## Versions
 ```
