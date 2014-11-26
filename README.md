@@ -7,6 +7,7 @@ Tabard Tell
 This addon shows the faction's reputation in the tooltip for the respective tabard.
 
 As of v0.8, it will also find and equip a tabard in your inventory with the lowest reuputation.
+This is optional, and can be turned off.
 
 ## Idea:
 I got tired of looking in the reputation frame to figure out which tabard I wanted to wear.
