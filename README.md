@@ -26,7 +26,9 @@ Or to check for reasons why it cannot be equipped and equip it after those reaso
 
 ## Versions
 ```
-0.8.2  Removing Debug print statements showing tabards in inventory
+0.8.4  Removing Debug print statements showing tabards in inventory
+0.8.3  Fixed bug with parsing Tabard name
+0.8.2  Fixed bug with keeping Tabard to equip coming out of dungeon
 0.8.1  Fixed bug with Darkspear Tabard (Darkspear Trolls rep) not equiping
 0.8    Wrapping in an Instance Auto Equip
        Super Simple configuration system to turn it on or off.
