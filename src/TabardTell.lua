@@ -92,7 +92,7 @@ function TT.PLAYER_REGEN_ENABLED()
 	local inInstance = IsInInstance()
 	if inInstance then
 		local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
-		TT.Print("Out of combat: "..(equippedTabbardLink or "no tabard").." is equipped.")
+		--TT.Print("Out of combat: "..(equippedTabbardLink or "no tabard").." is equipped.")
 		if equippedTabbardLink then
 
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( equippedTabbardLink )
@@ -102,7 +102,7 @@ function TT.PLAYER_REGEN_ENABLED()
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
 			if TT.fStandingId == 8 then
-				TT.Print("You are currently "..TT.fStandingStr.." with "..factionName..". Swapping tabard.")
+				--TT.Print("You are currently "..TT.fStandingStr.." with "..factionName..". Swapping tabard.")
 				TT.PLAYER_ENTERING_WORLD()
 			end
 		end
