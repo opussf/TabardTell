@@ -21,8 +21,10 @@ function TT.OptionsPanel_OKAY()
 	TT.oldValues = nil;
 	if TT_options.changeEnabled then
 		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+		TTFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	else
 		TTFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		TTFrame:UnregisterEvent("PLAYER_REGEN_ENABLED")
 	end
 end
 function TT.OptionsPanel_Cancel()
