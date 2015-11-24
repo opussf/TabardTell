@@ -21,6 +21,7 @@ function TT.ADDON_LOADED()
 	TT.OptionsPanel_Reset();
 	if TT_options.changeEnabled then
 		TTFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+		TTFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
 	TT.Print("Loaded version: "..TT_MSG_VERSION)
 end
@@ -87,11 +88,31 @@ end
 ------------
 -- Equip Code
 ------------
+function TT.PLAYER_REGEN_ENABLED()
+	local inInstance = IsInInstance()
+	if inInstance then
+		local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+		TT.Print("Out of combat: "..(equippedTabbardLink or "no tabard").." is equipped.")
+		if equippedTabbardLink then
+
+			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( equippedTabbardLink )
+			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
+			if not factionName then
+				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
+			end
+			local foundFactionName = TT.GetFactionInfo( factionName )
+			if TT.fStandingId == 8 then
+				TT.Print("You are currently "..TT.fStandingStr.." with "..factionName..". Swapping tabard.")
+				TT.PLAYER_ENTERING_WORLD()
+			end
+		end
+	end
+end
 function TT.PLAYER_ENTERING_WORLD()
 	local inInstance = IsInInstance()
 	local foundFactionName
 	if inInstance then
-		if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
+		-- if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
 		TT.tabards = {}
 		for bag = 0, 4 do
 			if GetContainerNumSlots(bag) > 0 then
@@ -106,7 +127,7 @@ function TT.PLAYER_ENTERING_WORLD()
 							end
 							--TT.Print("name: "..name.." FactionName: "..(factionName and factionName or "Nil"))
 							foundFactionName =  TT.GetFactionInfo( factionName )
-							if foundFactionName then
+							if foundFactionName and (TT.fEarnedValue+1 < TT.fTopValue) then -- only add if not fully exalted
 								table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 							end
 						end
@@ -123,7 +144,9 @@ function TT.PLAYER_ENTERING_WORLD()
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
-			if foundFactionName then
+			--TT.Print("Name: "..name..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
+			if foundFactionName and (TT.fEarnedValue+1 < TT.fTopValue) then -- only add if not fully exalted
+				--TT.Print("Considering "..name)
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
 			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
