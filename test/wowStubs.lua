@@ -115,6 +115,38 @@ EquipmentSets = {
 }
 -- WowToken
 TokenPrice = 123456 -- 12G 34S 45C
+-- Factions
+globals.FACTION_STANDING_LABEL1 = "Hated"
+globals.FACTION_STANDING_LABEL2 = "Hostile"
+globals.FACTION_STANDING_LABEL3 = "Unfriendly"
+globals.FACTION_STANDING_LABEL4 = "Neutral"
+globals.FACTION_STANDING_LABEL5 = "Friendly"
+globals.FACTION_STANDING_LABEL6 = "Honored"
+globals.FACTION_STANDING_LABEL7 = "Revered"
+globals.FACTION_STANDING_LABEL8 = "Exalted"
+
+--			TT.fName, TT.fDescription, TT.fStandingId, TT.fBottomValue, TT.fTopValue, TT.fEarnedValue, TT.fAtWarWith,
+--					TT.fCanToggleAtWar, TT.fIsHeader, TT.fIsCollapsed, TT.fIsWatched, TT.isChild, TT.factionID,
+--					TT.hasBonusRepGain, TT.canBeLFGBonus = GetFactionInfo(factionIndex);
+FactionInfo = {
+	{ ["name"] = "Classic", ["description"] = "", ["standingID"] = 4, ["bottomValue"] = 0, ["topValue"] = 3000, ["earnedValue"] = 0,
+		["atWarWith"] = false, ["canToggleAtWar"] = true, ["isHeader"] = true, ["isCollapsed"] = false, ["hasRep"] = false,
+		["isWatched"] = false, ["isChild"] = false, ["factionID"] = 1118, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
+	},
+	{ ["name"] = "Darkmoon Faire", ["description"] = "description and stuff",
+		["standingID"] = 5, ["bottomValue"] = 3000, ["topValue"] = 9000, ["earnedValue"] = 7575,
+		["atWarWith"] = false, ["canToggleAtWar"] = false, ["isHeader"] = false, ["isCollapsed"] = false, ["hasRep"] = false,
+		["isWatched"] = false, ["isChild"] = false, ["factionID"] = 909, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
+	},
+	{ ["name"] = "Alliance", ["description"] = "", ["standingID"] = 6, ["bottomValue"] = 9000, ["topValue"] = 21000, ["earnedValue"] = 10390,
+		["atWarWith"] = false, ["canToggleAtWar"] = false, ["isHeader"] = true, ["isCollapsed"] = false, ["hasRep"] = false,
+		["isWatched"] = false, ["isChild"] = false, ["factionID"] = 469, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
+	},
+	{ ["name"] = "Stormwind", ["description"] = "", ["standingID"] = 7, ["bottomValue"] = 21000, ["topValue"] = 42000, ["earnedValue"] = 33397,
+		["atWarWith"] = false, ["canToggleAtWar"] = false, ["isHeader"] = false, ["isCollapsed"] = false, ["hasRep"] = false,
+		["isWatched"] = true, ["isChild"] = true, ["factionID"] = 72, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
+	},
+}
 
 -- WOW's function renames
 strmatch = string.match
@@ -469,6 +501,12 @@ function GetEquipmentSetInfoByName( nameIn )
 		end
 	end
 end
+function GetFactionInfo( index )
+	-- http://wowprogramming.com/docs/api/GetFactionInfo
+	local f = FactionInfo[ index ]
+	return f.name, f.description, f.standingID, f.bottomValue, f.topValue, f.earnedValue, f.atWarWith, f.canToggleAtWar,
+			f.isHeader, f.isCollapsed, f.hasRep, f.isWatched, f.isChild, f.factionID, f.hasBonusRepGain, f.canBeLFGBonus
+end
 function GetInventoryItemID( unitID, invSlot )
 	-- http://www.wowwiki.com/API_GetInventoryItemID
 	-- unitID: string   (http://www.wowwiki.com/API_TYPE_UnitId)  (bossN 1-4, player, partyN 1-4, raidN 1-40)
@@ -572,6 +610,12 @@ function GetNumEquipmentSets()
 	-- http://www.wowwiki.com/API_GetNumEquipmentSets
 	-- Returns 0,MAX_NUM_EQUIPMENT_SETS
 	return #EquipmentSets
+end
+function GetNumFactions()
+	-- returns number of factions
+	local count = 0
+	for _ in pairs(FactionInfo) do count = count + 1 end
+	return count
 end
 function GetNumGroupMembers()
 	-- http://www.wowwiki.com/API_GetNumGroupMembers
