@@ -7,13 +7,11 @@ require "wowTest"
 
 test.outFileName = "testOut.xml"
 
-
 -- Figure out how to parse the XML here, until then....
 
 -- require the file to test
 package.path = "../src/?.lua;'" .. package.path
 require "TabardTell"
-
 
 
 -- addon setup
@@ -43,5 +41,64 @@ function test.testFactionFilter_withThe()
 	_, _, TT.faction = strfind(actual, TT.TABARD_FACTION_FILTER);
 	assertEquals( "Bilgewater Cartel", TT.faction)
 end
+
+function test.testFactionInfo_nil()
+	assertIsNil( TT.GetFactionInfo() )
+end
+function test.testFactionInfo_fName()
+	fName = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "Stormwind", fName )
+end
+function test.testFactionInfo_fDescription()
+	_, fDescription = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "", fDescription )
+end
+function test.testFactionInfo_fStandingStr()
+	_, _, fStandingStr = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "Revered", fStandingStr )
+end
+function test.testFactionInfo_fBarBottomValue()
+	fBarBottomValue = select(4, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 0, fBarBottomValue )
+end
+function test.testFactionInfo_fBarTopValue()
+	fBarTopValue = select(5, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 21000, fBarTopValue )
+end
+function test.testFactionInfo_fBarEarnedValue()
+	fBarEarnedValue = select(6, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 12397, fBarEarnedValue )
+end
+function test.testFactionInfo_fAtWarWith()
+	fAtWarWith = select(7, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fAtWarWith )
+end
+function test.testFactionInfo_fCanToggleAtWar()
+	fCanToggleAtWar = select(8, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fCanToggleAtWar )
+end
+function test.testFactionInfo_fIsHeader()
+	fIsHeader = select(9, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsHeader )
+end
+function test.testFactionInfo_fIsHeader_header()
+	-- GetFactionInfo does not return values if it is a header
+	fIsHeader = select(9, TT.GetFactionInfo( "Alliance" ) )
+	assertFalse( fIsHeader )
+end
+function test.testFactionInfo_fIsCollapsed()
+	fIsCollapsed = select(10, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsCollapsed )
+end
+function test.testFactionInfo_fIsWatched()
+	fIsWatched = select(11, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsWatched )
+end
+function test.testFactionInfo_factionIndex()
+	factionIndex = select(12, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 4, factionIndex )
+end
+
+
 
 test.run()
