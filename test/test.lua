@@ -113,14 +113,22 @@ end
 function test.testGetFreeBag_2Bags()
 	bagInfo[1] = {10, 0}
 	local bagID = TT.getFreeBag()
-	assertEquals( 1, bagID )
 	bagInfo[1] = nil
+	assertEquals( 1, bagID )
 end
 function test.testGetFreeBag_2Bags_firstIsFull()
 	bagInfo[1] = {0, 0}
 	local bagID = TT.getFreeBag()
-	assertEquals( 0, bagID )
 	bagInfo[1] = nil
+	assertEquals( 0, bagID )
+end
+function test.testGetFreeBag_2Bags_bothAreFull()
+	bagInfo[1] = {0, 0}
+	bagInfo[0] = {0, 0}
+	local bagID = TT.getFreeBag()
+	bagInfo[1] = nil
+	bagInfo[0] = {16, 0}
+	assertIsNil( bagID )
 end
 
 test.run()
