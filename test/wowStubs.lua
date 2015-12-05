@@ -136,7 +136,7 @@ FactionInfo = {
 	{ ["name"] = "Darkmoon Faire", ["description"] = "description and stuff",
 		["standingID"] = 5, ["bottomValue"] = 3000, ["topValue"] = 9000, ["earnedValue"] = 7575,
 		["atWarWith"] = false, ["canToggleAtWar"] = false, ["isHeader"] = false, ["isCollapsed"] = false, ["hasRep"] = false,
-		["isWatched"] = false, ["isChild"] = false, ["factionID"] = 909, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
+		["isWatched"] = false, ["isChild"] = true, ["factionID"] = 909, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
 	},
 	{ ["name"] = "Alliance", ["description"] = "", ["standingID"] = 6, ["bottomValue"] = 9000, ["topValue"] = 21000, ["earnedValue"] = 10390,
 		["atWarWith"] = false, ["canToggleAtWar"] = false, ["isHeader"] = true, ["isCollapsed"] = false, ["hasRep"] = false,
@@ -382,6 +382,14 @@ function EquipItemByName( itemIn, slotIDIn )
 		end
 	end
 end
+function ExpandFactionHeader( index )
+	-- http://wowprogramming.com/docs/api/ExpandFactionHeader
+	if FactionInfo[index] then
+		if FactionInfo[index].isHeader then
+			FactionInfo[index].isCollapsed = false
+		end
+	end
+end
 function GetAccountExpansionLevel()
 	-- http://www.wowwiki.com/API_GetAccountExpansionLevel
 	-- returns 0 to 4 (5)
@@ -613,6 +621,8 @@ function GetNumEquipmentSets()
 end
 function GetNumFactions()
 	-- returns number of factions
+	-- I believe that this should return the correct number that are SHOWN.
+	-- It should then process the info the describes if it is collapsed or not.
 	local count = 0
 	for _ in pairs(FactionInfo) do count = count + 1 end
 	return count
