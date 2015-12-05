@@ -98,6 +98,13 @@ function test.testFactionInfo_factionIndex()
 	factionIndex = select(12, TT.GetFactionInfo( "Stormwind" ) )
 	assertEquals( 4, factionIndex )
 end
+function test.testFactionInfo_ExpandsHeaders()
+	FactionInfo[1].isCollapsed = true
+	FactionInfo[3].isCollapsed = true
+	fName = TT.GetFactionInfo( "Stormwind" ) -- 4th faction
+	assertEquals( "Stormwind", fName )	-- found the faction
+	assertFalse( FactionInfo[3].isCollapsed ) -- assert that it is not collapsed
+end
 
 
 
