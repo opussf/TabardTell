@@ -105,7 +105,22 @@ function test.testFactionInfo_ExpandsHeaders()
 	assertEquals( "Stormwind", fName )	-- found the faction
 	assertFalse( FactionInfo[3].isCollapsed ) -- assert that it is not collapsed
 end
-
-
+function test.testGetFreeBag_onlyBackPack()
+	-- default is to only have the backpack equiped
+	local bagID = TT.getFreeBag()
+	assertEquals( 0, bagID )
+end
+function test.testGetFreeBag_2Bags()
+	bagInfo[1] = {10, 0}
+	local bagID = TT.getFreeBag()
+	assertEquals( 1, bagID )
+	bagInfo[1] = nil
+end
+function test.testGetFreeBag_2Bags_firstIsFull()
+	bagInfo[1] = {0, 0}
+	local bagID = TT.getFreeBag()
+	assertEquals( 0, bagID )
+	bagInfo[1] = nil
+end
 
 test.run()
