@@ -130,5 +130,25 @@ function test.testGetFreeBag_2Bags_bothAreFull()
 	bagInfo[0] = {16, 0}
 	assertIsNil( bagID )
 end
+function test.testPLAYER_ENTERING_WORLD_noInstance_noEquippedTabard()
+	-- changing zones?  -- no tabard should be equipped.
+	currentInstance = nil
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	assertIsNil( equippedTabbardLink )
+end
+function test.testPLAYER_ENTERING_WORLD_inInstance_noEquippedTabard()
+	-- just entering an instance
+	currentInstance = 5
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	assertTrue( equippedTabbardLink )
+end
+function test.testPLAYER_ENTERING_WORLD_inInstance_hasEquippedTabard()
+	currentInstance = 5
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	--assertTrue( equippedTabbardLink )
+end
 
 test.run()
