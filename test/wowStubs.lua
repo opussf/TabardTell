@@ -469,6 +469,12 @@ function GetContainerNumFreeSlots( bagId )
 		return 0, 0
 	end
 end
+function GetContainerNumSlots( bagId )
+	-- @TODO: Research this.
+	if bagInfo[bagId] then
+		return bagInfo[bagId][1]
+	end
+end
 function GetCurrencyInfo( id ) -- id is string
 	-- http://wowprogramming.com/docs/api/GetCurrencyInfo
 	-- returns name, amount, texturePath, earnedThisWeek, weeklyMax, totalMax, isDiscovered
@@ -721,6 +727,10 @@ function IsInGuild()
 	-- http://www.wowwiki.com/API_IsInGuild
 	-- 1, nil boolean return of being in guild
 	return (myGuild and myGuild.name) and 1 or nil
+end
+function IsInInstance()
+	-- returns 1nil
+	return currentInstance and true or nil
 end
 function IsInRaid()
 	-- http://www.wowwiki.com/API_IsInRaid
