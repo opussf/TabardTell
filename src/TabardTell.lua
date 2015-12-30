@@ -92,7 +92,7 @@ function TT.UNIT_SPELLCAST_CHANNEL_STOP(...)
 	unit, spell, rank, _, spellID = ...
 	--TT.Print(unit.." has stopped casting ".. spell)
 	if unit == "player" and spell == TT.castingSpell then
-		TT.Print("-----  Perform SWAP NOW -----")
+		--TT.Print("-----  Perform SWAP NOW -----")
 		TTFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 		TT.castingSpell = nil
 		TT.PLAYER_ENTERING_WORLD()
