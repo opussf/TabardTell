@@ -1,6 +1,7 @@
 TT_options = {
 	["changeEnabled"] = true,
 	["changeVerbose"] = true,
+	["swapRank"] = 8,
 }
 
 function TT.OptionsPanel_OnLoad(panel)
