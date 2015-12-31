@@ -27,6 +27,9 @@ Or to check for reasons why it cannot be equipped and equip it after those reaso
 
 ## Versions
 ```
+0.9.2  Fix a bug for casting, not just channeling spells.
+0.9.1  Fix a bug for exchanging Exalted tabards if you are still casting after combat (healer).
+0.9    Once reaching Exalted with a faction, a tabard will be replaced after combat.
 0.8.4  Removing Debug print statements showing tabards in inventory
 0.8.3  Fixed bug with parsing Tabard name
 0.8.2  Fixed bug with keeping Tabard to equip coming out of dungeon
