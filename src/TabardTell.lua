@@ -90,10 +90,20 @@ end
 ------------
 function TT.UNIT_SPELLCAST_CHANNEL_STOP(...)
 	unit, spell, rank, _, spellID = ...
-	--TT.Print(unit.." has stopped casting ".. spell)
+	--TT.Print(unit.." has stopped channeling ".. spell)
 	if unit == "player" and spell == TT.castingSpell then
 		--TT.Print("-----  Perform SWAP NOW -----")
 		TTFrame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+		TT.castingSpell = nil
+		TT.PLAYER_ENTERING_WORLD()
+	end
+end
+function TT.UNIT_SPELLCAST_STOP(...)
+	unit, spell = ...
+	--TT.Print(unit.." has stopped casting "..spell)
+	if unit == "player" and spell == TT.castingSpell then
+		--TT.Print("----- Perform SWAP NOW -----")
+		TTFrame:UnregisterEvent("UNIT_SPELLCAST_STOP")
 		TT.castingSpell = nil
 		TT.PLAYER_ENTERING_WORLD()
 	end
@@ -110,14 +120,21 @@ function TT.PLAYER_REGEN_ENABLED()
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
-			if TT.fStandingId == 8 then
+			if TT.fStandingId >= (TT_options.swapRank or 8) then  -- defensive to allow this to be nil
 				--TT.Print("You are currently "..TT.fStandingStr.." with "..factionName..". Swapping tabard.")
 				spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interupt = UnitChannelInfo("player")
 				--TT.Print((spell or "Nothing").." is being channeled right now."..(spell and (" Ending at :"..endTime) or ""))
 				if spell then -- if you are channelling a spell, register the event to swap at end of cast.
 					TT.castingSpell = spell
 					TTFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-					return -- channeling a spell, end here.
+					return  -- channeling a spell, end here.
+				end
+				spell = UnitCastingInfo("player")
+				if spell then
+					--TT.Print("Casting "..spell)
+					TT.castingSpell = spell
+					TTFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
+					return  -- casting a spell, end here.
 				end
 				TT.PLAYER_ENTERING_WORLD()
 			end
