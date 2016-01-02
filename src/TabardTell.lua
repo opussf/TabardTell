@@ -10,6 +10,7 @@ TT.errorString = "Unfold all of the faction groups to see your standing for this
 TT.TABARD_EQUIP_FILTER = "Equip:";
 TT.TABARD_FACTION_FILTER = "the cause of [the ]*([%u%l%s]+)."  -- 0 or more 'the ', upper, lower, spaces till '.'
 TT.lines = {5,6,7};  -- lines of the tooltip to examine
+TT.tabardSlot = GetInventorySlotInfo("TabardSlot")
 
 function TT.OnLoad()
 	GameTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
@@ -142,6 +143,26 @@ function TT.PLAYER_REGEN_ENABLED()
 	end
 end
 function TT.PLAYER_ENTERING_WORLD()
+	-- Just entered the world.
+	-- If entering an instance, and TT_equippedTabard is nil, set TT_equippedTabard to the current tabard
+	--   Also, equip a tabard.
+	-- If entering an instance, and TT_equippedTabard is NOT nil, do nothing.
+	-- If not entering an instance, and TT_equippedTabard is "NONE", clear TT_equippedTabard
+	-- If not entering an instance, and TT_equippedTabard is a link, equip the tabard, and clear TT_equippedTabard
+	local inInstance = IsInInstance()
+	if inInstance then -- in instance
+		TT.Print("inInstance")
+		if TT_equippedTabard then  -- previously equipped Tabard
+			TT.Print(TT_equippedTabard.." was equipped")
+		else -- no previously equipped known about
+			local link = GetInventoryItemLink( "player", TT.tabardSlot )
+
+		end
+	else
+		TT.Print("not inInstance")
+	end
+end
+function TT.PLAYER_ENTERING_WORLD_old()
 	local inInstance = IsInInstance()
 	local foundFactionName
 	if inInstance then
