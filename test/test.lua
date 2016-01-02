@@ -12,7 +12,7 @@ test.outFileName = "testOut.xml"
 -- require the file to test
 package.path = "../src/?.lua;'" .. package.path
 require "TabardTell"
-
+require "TabardTellOptions"
 
 -- addon setup
 function test.before()

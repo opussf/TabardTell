@@ -456,6 +456,8 @@ function GetCoinTextureString( copperIn, fontHeight )
 				(copper and copper.."C"))
 	end
 end
+function GetContainerItemLink( bag, slot )
+end
 function GetContainerNumFreeSlots( bagId )
 	-- http://www.wowwiki.com/API_GetContainerNumFreeSlots
 	-- http://www.wowwiki.com/BagType
