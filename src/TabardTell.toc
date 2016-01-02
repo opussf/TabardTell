@@ -4,7 +4,7 @@
 ## Author: sistersally of hyjal
 ## Version: @VERSION@
 ## Description: Shows your current rep for the Tabard faction in the tooltip
-## SavedVariables TT_options
+## SavedVariables: TT_options
 ## SavedVariablesPerCharacter: TT_equippedTabbard
 TabardTell.lua
 TabardTell.xml

@@ -120,7 +120,7 @@ function TT.PLAYER_REGEN_ENABLED()
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
-			if TT.fStandingId >= TT_options.swapRank then
+			if TT.fStandingId >= (TT_options.swapRank or 8) then  -- defensive to allow this to be nil
 				--TT.Print("You are currently "..TT.fStandingStr.." with "..factionName..". Swapping tabard.")
 				spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, interupt = UnitChannelInfo("player")
 				--TT.Print((spell or "Nothing").." is being channeled right now."..(spell and (" Ending at :"..endTime) or ""))
