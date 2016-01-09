@@ -150,17 +150,31 @@ function TT.PLAYER_ENTERING_WORLD()
 	-- If not entering an instance, and TT_equippedTabard is "NONE", clear TT_equippedTabard
 	-- If not entering an instance, and TT_equippedTabard is a link, equip the tabard, and clear TT_equippedTabard
 	local inInstance = IsInInstance()
+	local link = GetInventoryItemLink( "player", TT.tabardSlot )  -- delete this
+	TT.Print((inInstance and "True" or "False")..", "..(TT_outsideTabard or "nil")..", "..(link and "True" or "False")..", ")
 	if inInstance then -- in instance
 		TT.Print("inInstance")
-		if TT_equippedTabard then  -- previously equipped Tabard
-			TT.Print(TT_equippedTabard.." was equipped")
+		local link = GetInventoryItemLink( "player", TT.tabardSlot )
+		if TT_outsideTabard then  -- previously equipped Tabard - or None - do nothing really, choose new tabard
+			TT.Print(TT_outsideTabard.." was equipped previously.")
 		else -- no previously equipped known about
-			local link = GetInventoryItemLink( "player", TT.tabardSlot )
-
+			if link then
+				TT.Print(link.." was equipped from the outside.")
+				TT_outsideTabard = link
+			else -- no tabard equipped from the outside
+				TT_outsideTabard = "None"
+			end
 		end
-	else
+	else -- not in instance
 		TT.Print("not inInstance")
+		if TT_outsideTabard then
+			TT.Print(TT_outsideTabard.." should now be equipped.")
+		else  -- TT_outsideTabard is nil
+			TT.Print("Remove an equipped tabard.")
+		end
+		TT_outsideTabard = nil
 	end
+	TT.PLAYER_ENTERING_WORLD_old()
 end
 function TT.PLAYER_ENTERING_WORLD_old()
 	local inInstance = IsInInstance()
