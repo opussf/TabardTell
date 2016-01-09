@@ -139,11 +139,19 @@ function test.testPLAYER_ENTERING_WORLD_10_inInstance_noneOutside_isEquipped_noV
 	TT.PLAYER_ENTERING_WORLD()
 	assertEquals( "None", TT_outsideTabard )
 end
-function test.testPLAYER_ENTERING_WORLD_notInInstance_noneTTEquipped_isEquipped_noValid() -- False, None, True, False (56)
+function test.testPLAYER_ENTERING_WORLD_11_notInInstance_linkTTEquipped_isEquipped_noValid() -- False, Link, True, False
+	currentInstance = nil
+	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
+	-- set an equipped Tabard
 	TT.PLAYER_ENTERING_WORLD()
+	assertIsNil( TT_outsideTabard )
 end
-function test.testPLAYER_ENTERING_WORLD_inInstance_noneTTEquipped_isEquipped_noValid() -- True, None, True, False (57)
+function test.testPLAYER_ENTERING_WORLD_12_inInstance_linkTTEquipped_isEquipped_noValid() -- True, Link, True, False
+	currentInstance = nil
+	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
+	-- set an equipped Tabard
 	TT.PLAYER_ENTERING_WORLD()
+	assertEquals( "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r", TT_outsideTabard )
 end
 function test.testPLAYER_ENTERING_WORLD_notInInstance_nilTTEquipped_noEquipped_Valid() -- False, nil, False, True (58)
 	TT.PLAYER_ENTERING_WORLD()
