@@ -176,6 +176,55 @@ function test.testPLAYER_ENTERING_WORLD_08_inInstance_linkOutside_hasEquipped_no
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
 
+-- UNIT_INVENTORY_CHANGED
+-- id | TT_outsideTabard | HasTabardEquipped | result
+------------------------------------------------------
+-- 01 | nil              | False             | TT_outsideTabard = nil
+-- 02 | Link             | False             | TT_outsideTabard = nil
+-- 03 | nil              | True              | TT_outsideTabard = Link
+-- 04 | Link (current)   | True              | TT_outsideTabard = Link (current)
+-- 05 | Link (not curr)  | True              | TT_outsideTabard = Link (current)
+
+function test.testUNIT_INVENTORY_CHANGED_01_nilOutside_noEquipped()
+	TT_outsideTabard = nil
+	tabardSlot = GetInventorySlotInfo("TabardSlot")
+	myGear[tabardSlot] = nil
+
+	TT.UNIT_INVENTORY_CHANGED()
+	assertIsNil( TT_outsideTabard )
+end
+function test.testUNIT_INVENTORY_CHANGED_02_linkOutside_noEquipped()
+	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
+	tabardSlot = GetInventorySlotInfo("TabardSlot")
+	myGear[tabardSlot] = nil
+
+	TT.UNIT_INVENTORY_CHANGED()
+	assertIsNil( TT_outsideTabard )
+end
+function test.testUNIT_INVENTORY_CHANGED_03_nilOutside_hasEquipped()
+	TT_outsideTabard = nil
+	tabardSlot = GetInventorySlotInfo("TabardSlot")
+	myGear[tabardSlot] = "45579"
+
+	TT.UNIT_INVENTORY_CHANGED()
+	assertEquals( "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r", TT_outsideTabard )
+end
+function test.testUNIT_INVENTORY_CHANGED_04_linkOutside_hasEquipped()
+	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
+	tabardSlot = GetInventorySlotInfo("TabardSlot")
+	myGear[tabardSlot] = "45579"
+
+	TT.UNIT_INVENTORY_CHANGED()
+	assertEquals( "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r", TT_outsideTabard )
+end
+function test.testUNIT_INVENTORY_CHANGED_05_linkOutside_hasEquipped()
+	TT_outsideTabard = "|cffffffff|Hitem:45580:0:0:0:0:0:0:0:14:258:0:0:0|h[Tabard]|h|r"
+	tabardSlot = GetInventorySlotInfo("TabardSlot")
+	myGear[tabardSlot] = "45579"
+
+	TT.UNIT_INVENTORY_CHANGED()
+	assertEquals( "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r", TT_outsideTabard )
+end
 
 ---------
 -- id | inInstance | TT_outsideTabard | HasTabardEquipped | ValidTabardInBag | result
