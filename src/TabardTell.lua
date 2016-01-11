@@ -187,7 +187,6 @@ function TT.equipTabbard( linkIn )
 			EquipItemByName( linkIn )
 		end
 	else
-		TT.Print("No link given.")
 		-- find valid tabards to equip
 		TT.tabards = {}
 		for bag = 0, 4 do
@@ -211,7 +210,7 @@ function TT.equipTabbard( linkIn )
 				end
 			end
 		end
-
+		-- determine if the currently worn tabard should be considered
 		local link = GetInventoryItemLink( "player", TT.tabardSlot )
 		if link then  -- you have a tabard equipped
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
@@ -222,14 +221,14 @@ function TT.equipTabbard( linkIn )
 			local foundFactionName = TT.GetFactionInfo( factionName )
 			--TT.Print("Name: "..foundFactionName..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
 			if foundFactionName and (TT.fEarnedValue+1 < TT.fTopValue) then -- only add if not fully exalted
-				--TT.Print("Considering "..name)
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
-			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
+			--if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
 		end
-
+		-- sort the list by earnedValue
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
 
+		-- equip the first one.
 		if TT.tabards[1] then
 			if not (TT.tabards[1].link == link) then  -- if the tabard to equip is not already equipped:
 				if TT_options.changeVerbose then TT.Print((link and ("Changing from "..link.." to ") or "Equipping: ")..TT.tabards[1].link); end
