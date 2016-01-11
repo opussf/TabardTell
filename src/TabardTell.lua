@@ -25,6 +25,7 @@ function TT.ADDON_LOADED()
 		TTFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
 	TT.Print("Loaded version: "..TT_MSG_VERSION)
+	TT.UNIT_INVENTORY_CHANGED()
 end
 
 function TT.GetEquipTextFromToolTip()
@@ -137,50 +138,57 @@ function TT.PLAYER_REGEN_ENABLED()
 					TTFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 					return  -- casting a spell, end here.
 				end
-				TT.PLAYER_ENTERING_WORLD()
+				TT.equipTabbard()
 			end
 		end
 	end
 end
 function TT.PLAYER_ENTERING_WORLD()
 	-- Just entered the world.
-	-- If entering an instance, and TT_equippedTabard is nil, set TT_equippedTabard to the current tabard
-	--   Also, equip a tabard.
-	-- If entering an instance, and TT_equippedTabard is NOT nil, do nothing.
-	-- If not entering an instance, and TT_equippedTabard is "NONE", clear TT_equippedTabard
-	-- If not entering an instance, and TT_equippedTabard is a link, equip the tabard, and clear TT_equippedTabard
-	local inInstance = IsInInstance()
-	local link = GetInventoryItemLink( "player", TT.tabardSlot )  -- delete this
-	TT.Print((inInstance and "True" or "False")..", "..(TT_outsideTabard or "nil")..", "..(link and "True" or "False")..", ")
-	if inInstance then -- in instance
-		TT.Print("inInstance")
-		local link = GetInventoryItemLink( "player", TT.tabardSlot )
-		if TT_outsideTabard then  -- previously equipped Tabard - or None - do nothing really, choose new tabard
-			TT.Print(TT_outsideTabard.." was equipped previously.")
-		else -- no previously equipped known about
-			if link then
-				TT.Print(link.." was equipped from the outside.")
-				TT_outsideTabard = link
-			else -- no tabard equipped from the outside
-				TT_outsideTabard = "None"
-			end
-		end
-	else -- not in instance
-		TT.Print("not inInstance")
+	if IsInInstance() then -- in instance
+		--TT.Print("inInstance")
+		TTFrame:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+		TT.equipTabbard()
+	else
+		--TT.Print("not inInstance")
+		TTFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 		if TT_outsideTabard then
-			TT.Print(TT_outsideTabard.." should now be equipped.")
-		else  -- TT_outsideTabard is nil
-			TT.Print("Remove an equipped tabard.")
+			TT.equipTabbard( TT_outsideTabard )
+		else
+			TT.removeTabbard()
 		end
-		TT_outsideTabard = nil
 	end
-	TT.PLAYER_ENTERING_WORLD_old()
 end
-function TT.PLAYER_ENTERING_WORLD_old()
-	local inInstance = IsInInstance()
-	local foundFactionName
-	if inInstance then
-		-- if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
+function TT.UNIT_INVENTORY_CHANGED()
+	local link = GetInventoryItemLink( "player", TT.tabardSlot )
+	TT_outsideTabard = link
+end
+function TT.removeTabbard()
+	if TT_options.changeVerbose then TT.Print("Removing the equipped tabard"); end
+	ClearCursor()
+	local freeBagId = TT.getFreeBag()
+	if freeBagId then
+		PickupInventoryItem( TT.tabardSlot )
+		if freeBagId == 0 then
+			PutItemInBackpack()
+		else
+			PutItemInBag(freeBagId+19)
+		end
+	else
+		TT.Print("Unable to remove equipped tabard.  Bags are full.")
+	end
+end
+function TT.equipTabbard( linkIn )
+	-- if link is given, try to equip that tabard
+	-- if no link is given, look for one to equip
+	if linkIn then
+		if (not (linkIn == GetInventoryItemLink( "player", TT.tabardSlot ) ) ) then
+			if TT_options.changeVerbose then TT.Print( "Equipping: "..linkIn ); end
+			EquipItemByName( linkIn )
+		end
+	else
+		TT.Print("No link given.")
+		-- find valid tabards to equip
 		TT.tabards = {}
 		for bag = 0, 4 do
 			if GetContainerNumSlots(bag) > 0 then
@@ -203,28 +211,23 @@ function TT.PLAYER_ENTERING_WORLD_old()
 				end
 			end
 		end
-		local slotNum = GetInventorySlotInfo("TabardSlot");
-		local link = GetInventoryItemLink( "player", slotNum )
-		if link then
+
+		local link = GetInventoryItemLink( "player", TT.tabardSlot )
+		if link then  -- you have a tabard equipped
+			print(link)
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
+			print(name)
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 			if not factionName then
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
-			--TT.Print("Name: "..name..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
+			--TT.Print("Name: "..foundFactionName..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
 			if foundFactionName and (TT.fEarnedValue+1 < TT.fTopValue) then -- only add if not fully exalted
 				--TT.Print("Considering "..name)
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
 			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
-			if not TT_equippedTabbard then  -- if set, don't overwrite
-				TT_equippedTabbard = link
-			end
-		else -- no link for equipped tabard when entering instance
-			if not TT_equippedTabbard then
-				TT_equippedTabbard = "None"
-			end
 		end
 
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
@@ -235,30 +238,8 @@ function TT.PLAYER_ENTERING_WORLD_old()
 		else
 			if TT_options.changeVerbose then TT.Print("Found no valid tabards to equip"); end
 		end
-	else
-		if TT_equippedTabbard and TT_equippedTabbard ~= "None" then
-			if TT_options.changeVerbose then TT.Print("Re-equipping: "..TT_equippedTabbard); end
-			EquipItemByName( TT_equippedTabbard )
-			TT_equippedTabbard = nil
-		else
-			if TT_options.changeVerbose then TT.Print("Removing the equipped tabard"); end
-			ClearCursor()
-			local freeBagId = TT.getFreeBag()
-			if freeBagId then
-				local slotNum = GetInventorySlotInfo("TabardSlot")
-				PickupInventoryItem( slotNum )
-				if freeBagId == 0 then
-					PutItemInBackpack()
-				else
-					PutItemInBag(freeBagId+19)
-				end
-			else
-				TT.Print("Unable to remove equipped tabard.  Bags are full.")
-			end
-		end
+
 	end
-	-- EquipItemByName( Stripper.targetSetItemArray[i], i )
-	--Stripper.RemoveFromSlot( "TabardSlot", true )
 end
 function TT.getFreeBag()
 	-- http://www.wowwiki.com/BagId
