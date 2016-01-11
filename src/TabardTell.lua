@@ -10,6 +10,7 @@ TT.errorString = "Unfold all of the faction groups to see your standing for this
 TT.TABARD_EQUIP_FILTER = "Equip:";
 TT.TABARD_FACTION_FILTER = "the cause of [the ]*([%u%l%s]+)."  -- 0 or more 'the ', upper, lower, spaces till '.'
 TT.lines = {5,6,7};  -- lines of the tooltip to examine
+TT.tabardSlot = GetInventorySlotInfo("TabardSlot")
 
 function TT.OnLoad()
 	GameTooltip:HookScript("OnTooltipSetItem", TT.HookSetItem)
@@ -24,6 +25,7 @@ function TT.ADDON_LOADED()
 		TTFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 	end
 	TT.Print("Loaded version: "..TT_MSG_VERSION)
+	TT.UNIT_INVENTORY_CHANGED()
 end
 
 function TT.GetEquipTextFromToolTip()
@@ -136,16 +138,56 @@ function TT.PLAYER_REGEN_ENABLED()
 					TTFrame:RegisterEvent("UNIT_SPELLCAST_STOP")
 					return  -- casting a spell, end here.
 				end
-				TT.PLAYER_ENTERING_WORLD()
+				TT.equipTabbard()
 			end
 		end
 	end
 end
 function TT.PLAYER_ENTERING_WORLD()
-	local inInstance = IsInInstance()
-	local foundFactionName
-	if inInstance then
-		-- if TT_options.changeVerbose then TT.Print("You have entered an Instance"); end
+	-- Just entered the world.
+	if IsInInstance() then -- in instance
+		--TT.Print("inInstance")
+		TTFrame:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+		TT.equipTabbard()
+	else
+		--TT.Print("not inInstance")
+		TTFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+		if TT_outsideTabard then
+			TT.equipTabbard( TT_outsideTabard )
+		else
+			TT.removeTabbard()
+		end
+	end
+end
+function TT.UNIT_INVENTORY_CHANGED()
+	local link = GetInventoryItemLink( "player", TT.tabardSlot )
+	TT_outsideTabard = link
+end
+function TT.removeTabbard()
+	if TT_options.changeVerbose then TT.Print("Removing the equipped tabard"); end
+	ClearCursor()
+	local freeBagId = TT.getFreeBag()
+	if freeBagId then
+		PickupInventoryItem( TT.tabardSlot )
+		if freeBagId == 0 then
+			PutItemInBackpack()
+		else
+			PutItemInBag(freeBagId+19)
+		end
+	else
+		TT.Print("Unable to remove equipped tabard.  Bags are full.")
+	end
+end
+function TT.equipTabbard( linkIn )
+	-- if link is given, try to equip that tabard
+	-- if no link is given, look for one to equip
+	if linkIn then
+		if (not (linkIn == GetInventoryItemLink( "player", TT.tabardSlot ) ) ) then
+			if TT_options.changeVerbose then TT.Print( "Equipping: "..linkIn ); end
+			EquipItemByName( linkIn )
+		end
+	else
+		-- find valid tabards to equip
 		TT.tabards = {}
 		for bag = 0, 4 do
 			if GetContainerNumSlots(bag) > 0 then
@@ -168,62 +210,35 @@ function TT.PLAYER_ENTERING_WORLD()
 				end
 			end
 		end
-		local slotNum = GetInventorySlotInfo("TabardSlot");
-		local link = GetInventoryItemLink( "player", slotNum )
-		if link then
+		-- determine if the currently worn tabard should be considered
+		local link = GetInventoryItemLink( "player", TT.tabardSlot )
+		if link then  -- you have a tabard equipped
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 			if not factionName then
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
 			end
 			local foundFactionName = TT.GetFactionInfo( factionName )
-			--TT.Print("Name: "..name..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
+			--TT.Print("Name: "..foundFactionName..", Earned/Top: "..TT.fEarnedValue.."/"..TT.fTopValue)
 			if foundFactionName and (TT.fEarnedValue+1 < TT.fTopValue) then -- only add if not fully exalted
-				--TT.Print("Considering "..name)
 				table.insert( TT.tabards, {["name"] = name, ["earnedValue"] = TT.fEarnedValue, ["link"] = link} )
 			end
-			if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
-			if not TT_equippedTabbard then  -- if set, don't overwrite
-				TT_equippedTabbard = link
-			end
-		else -- no link for equipped tabard when entering instance
-			if not TT_equippedTabbard then
-				TT_equippedTabbard = "None"
-			end
+			--if TT_options.changeVerbose then TT.Print(link.." is equipped"); end
 		end
-
+		-- sort the list by earnedValue
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
 
+		-- equip the first one.
 		if TT.tabards[1] then
-			if TT_options.changeVerbose then TT.Print("Equipping: "..TT.tabards[1]["link"]); end
-			EquipItemByName( TT.tabards[1]["link"] )
+			if not (TT.tabards[1].link == link) then  -- if the tabard to equip is not already equipped:
+				if TT_options.changeVerbose then TT.Print((link and ("Changing from "..link.." to ") or "Equipping: ")..TT.tabards[1].link); end
+				EquipItemByName( TT.tabards[1].link )
+			end
 		else
 			if TT_options.changeVerbose then TT.Print("Found no valid tabards to equip"); end
 		end
-	else
-		if TT_equippedTabbard and TT_equippedTabbard ~= "None" then
-			if TT_options.changeVerbose then TT.Print("Re-equipping: "..TT_equippedTabbard); end
-			EquipItemByName( TT_equippedTabbard )
-			TT_equippedTabbard = nil
-		else
-			if TT_options.changeVerbose then TT.Print("Removing the equipped tabard"); end
-			ClearCursor()
-			local freeBagId = TT.getFreeBag()
-			if freeBagId then
-				local slotNum = GetInventorySlotInfo("TabardSlot")
-				PickupInventoryItem( slotNum )
-				if freeBagId == 0 then
-					PutItemInBackpack()
-				else
-					PutItemInBag(freeBagId+19)
-				end
-			else
-				TT.Print("Unable to remove equipped tabard.  Bags are full.")
-			end
-		end
+
 	end
-	-- EquipItemByName( Stripper.targetSetItemArray[i], i )
-	--Stripper.RemoveFromSlot( "TabardSlot", true )
 end
 function TT.getFreeBag()
 	-- http://www.wowwiki.com/BagId
