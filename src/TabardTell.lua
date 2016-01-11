@@ -214,9 +214,7 @@ function TT.equipTabbard( linkIn )
 
 		local link = GetInventoryItemLink( "player", TT.tabardSlot )
 		if link then  -- you have a tabard equipped
-			print(link)
 			local name, _, _, _, _, _, _, _, equipSlot = GetItemInfo( link )
-			print(name)
 			local _, _, factionName = strfind( name, "([%u%l%s]+) Tabard" )
 			if not factionName then
 				_, _, factionName = strfind( name, "Tabard of the ([%u%l%s]+)" )
