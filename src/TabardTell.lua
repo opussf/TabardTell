@@ -231,8 +231,10 @@ function TT.equipTabbard( linkIn )
 		table.sort( TT.tabards, function(a,b) return a.earnedValue<b.earnedValue end ) -- sort by earned Value
 
 		if TT.tabards[1] then
-			if TT_options.changeVerbose then TT.Print("Equipping: "..TT.tabards[1]["link"]); end
-			EquipItemByName( TT.tabards[1]["link"] )
+			if not (TT.tabards[1].link == link) then  -- if the tabard to equip is not already equipped:
+				if TT_options.changeVerbose then TT.Print((link and ("Changing from "..link.." to ") or "Equipping: ")..TT.tabards[1].link); end
+				EquipItemByName( TT.tabards[1].link )
+			end
 		else
 			if TT_options.changeVerbose then TT.Print("Found no valid tabards to equip"); end
 		end
