@@ -151,11 +151,16 @@ function TT.PLAYER_ENTERING_WORLD()
 		TT.equipTabbard()
 	else
 		--TT.Print("not inInstance")
-		TTFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		if TT_outsideTabard then
-			TT.equipTabbard( TT_outsideTabard )
-		else
-			TT.removeTabbard()
+		if (not UnitIsDeadOrGhost("player")) then
+			--TT.Print("You are not dead")
+			TTFrame:RegisterEvent("UNIT_INVENTORY_CHANGED")
+			if TT_outsideTabard then
+				TT.equipTabbard( TT_outsideTabard )
+			else
+				TT.removeTabbard()
+			end
+--		else
+--			TT.Print("You are dead.")
 		end
 	end
 end
