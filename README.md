@@ -27,6 +27,9 @@ Or to check for reasons why it cannot be equipped and equip it after those reaso
 
 ## Versions
 ```
+0.11.1 Fixed a bug where corpse running would capture the tabard to wear outside an instance.
+0.11   Fix a bug where the tabard equipped outside the dungeon is not replaced
+       Cleaned up the Tabard switching messages.
 0.10.1 Fix a bug for casting, not just channeling spells.
 0.10   Fix a bug for exchanging Exalted tabards if you are still casting after combat (healer).
 0.9    Once reaching Exalted with a faction, a tabard will be replaced after combat.
