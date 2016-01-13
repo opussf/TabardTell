@@ -894,6 +894,9 @@ function UnitFactionGroup( who )
 	}
 	return unpack( unitFactions[who] )
 end
+function UnitIsDeadOrGhost( who )
+
+end
 function UnitName( who )
 	local unitNames = {
 		["player"] = "testPlayer",
