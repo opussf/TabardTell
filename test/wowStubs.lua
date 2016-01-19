@@ -345,20 +345,8 @@ function EquipItemByName( itemIn, slotIDIn )
 	-- http://www.wowwiki.com/API_EquipItemByName
 	-- item: string (itemID, itemName, or itemLink)
 	-- slot: number (optional: where to place it)
-	local itemID
+	local itemID = __getItemID( itemIn )
 	local slotID
-	if tonumber(itemIn) then -- got the itemID
-		itemID = itemIn
-	elseif strmatch( itemIn, "item:(%d*)" ) then -- got an ItemString or ItemLink
-		itemID = string.format("%s", strmatch( itemIn, "item:(%d*)" ) )
-	else -- Anything else, treat it as an ItemName.
-		for ID, data in pairs(Items) do
-			if itemIn == data.name then
-				itemID = ID
-				break  -- break the loop once the item is found.
-			end
-		end
-	end
 	--print(itemID,type(itemID),(slotIDIn or "nil"))
 	-- look for the item in inventory
 	if myInventory[itemID] then -- is in inventory
@@ -563,8 +551,10 @@ function GetItemCount( itemID, includeBank )
 	-- print( itemID, myInventory[itemID] )
 	return myInventory[itemID] or 0
 end
-function GetItemInfo( itemID )
+function GetItemInfo( itemIn )
+	-- itemID is number, link or 'item:#####'
 	-- returns name, itemLink
+	local itemID = __getItemID( itemIn )
 	if Items[itemID] then
 		return Items[itemID].name, Items[itemID].link
 	end
@@ -752,6 +742,22 @@ function NumTaxiNodes()
 	end
 	return count
 end
+function __getItemID( itemIn )
+	local itemID
+	if tonumber(itemIn) then -- got the itemID
+		itemID = itemIn
+	elseif strmatch( itemIn, "item:(%d*)" ) then -- got an ItemString or ItemLink
+		itemID = string.format("%s", strmatch( itemIn, "item:(%d*)" ) )
+	else -- Anything else, treat is an ItemName
+		for ID, data in pairs(Items) do
+			if itemIn == data.name then
+				itemId = ID
+				break -- break the loop once the item is found.
+			end
+		end
+	end
+	return itemID
+end
 function PickupItem( itemIn )
 	-- http://www.wowwiki.com/API_PickupItem
 	-- itemString is:
@@ -762,19 +768,7 @@ function PickupItem( itemIn )
 	-- Should only pick up an item that you know about. (in bags for now (myInventory) )
 	-- -- Note: Does not pick up an item from equipped inventory
 	-- Not sure what this should do if there is already something on the cursor
-	local itemID
-	if tonumber(itemIn) then -- got the itemID
-		itemID = itemIn
-	elseif strmatch( itemIn, "item:(%d*)" ) then -- got an ItemString or ItemLink
-		itemID = string.format("%s", strmatch( itemIn, "item:(%d*)" ) )
-	else -- Anything else, treat it as an ItemName.
-		for ID, data in pairs(Items) do
-			if itemIn == data.name then
-				itemID = ID
-				break  -- break the loop once the item is found.
-			end
-		end
-	end
+	itemID = __getItemID( itemIn )
 	onCursor={}
 	if myInventory[itemID] then
 		onCursor['item'] = itemID
