@@ -7,7 +7,6 @@ require "wowTest"
 
 test.outFileName = "testOut.xml"
 
-
 -- Figure out how to parse the XML here, until then....
 
 -- require the file to test
@@ -21,25 +20,22 @@ TTFrame = CreateFrame()
 function test.before()
 end
 function test.after()
+	globals.GameTooltipTextLeft5 = nil
 end
 
 -- these tests only examine the RE for finding the faction name
 function test.testFactionFilter_noThe()
-	globals = {
-		["GameTooltipTextLeft5"] = { ["GetText"] = function()
+	globals.GameTooltipTextLeft5 = { ["GetText"] = function()
 			return "Equip: You champion the cause of Darnassus. All reputation gains while in dungeons will be applied to your standing with them."
-		end, },
-	}
+		end, }
 	local actual = TT.GetEquipTextFromToolTip()
 	_, _, TT.faction = strfind(actual, TT.TABARD_FACTION_FILTER);
 	assertEquals( "Darnassus", TT.faction )
 end
 function test.testFactionFilter_withThe()
-	globals = {
-		["GameTooltipTextLeft5"] = { ["GetText"] = function()
+	globals.GameTooltipTextLeft5 = { ["GetText"] = function()
 			return "Equip: You champion the cause of the Bilgewater Cartel. All reputation gains while in dungeons will be applied to your standing with them."
-		end, },
-	}
+		end, }
 	local actual = TT.GetEquipTextFromToolTip()
 	_, _, TT.faction = strfind(actual, TT.TABARD_FACTION_FILTER);
 	assertEquals( "Bilgewater Cartel", TT.faction)
@@ -66,7 +62,10 @@ end
 -- 07 | False      | Link             | True              | False            | TT_outsideTabard = Link, equipped = Link, UIC registered
 -- 08 | True       | Link             | True              | False            | TT_outsideTabard = Link, probably keep tabard, UIC not registered
 -- 09 | False      | nil              | False             | True             | TT_outsideTabard = nil, UIC registered
--- 10 | True       | nil              | False             | True
+-- 10 | True       | nil              | False             | True             | TT_outsideTabard = nil, tabard is equipped
+-- 11 | False      | Link             | False             | True             | TT_outsideTabard = Link, equipped = Link, UIC registered
+-- 12 | True       | Link             | False             | True             | TT_outsideTabard = Link, equip
+--
 
 function test.testPLAYER_ENTERING_WORLD_01_notInInstance_nilOutside_noEquipped_noValid()
 	currentInstance = nil
@@ -91,7 +90,7 @@ function test.testPLAYER_ENTERING_WORLD_02_inInstance_nilOutside_noEquipped_noVa
 	assertIsNil( TT_outsideTabard, "Nothing equipped when entering." )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_03_notInInstance_linkOutside_noEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_03_notInInstance_linkOutside_noEquipped_noValid()
 	-- Tossed the tabard out while inside the dungeon?
 	currentInstance = nil
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
@@ -116,7 +115,7 @@ function test.testPLAYER_ENTERING_WORLD_04_inInstance_linkOutside_noEquipped_noV
 	assertIsNil( myGear[tabardSlot], "None should be equipped." )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_noValid()
 	currentInstance = nil
 	TT_outsideTabard = nil
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -128,7 +127,7 @@ function test.notestPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_
 	assertIsNil( myGear[tabardSlot], "Equipped tabard should be cleared." )
 	assertTrue( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_noValid()
 	currentInstance = 14
 	TT_outsideTabard = nil
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -140,7 +139,7 @@ function test.notestPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_n
 	assertEquals( "45579", myGear[tabardSlot] )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipped_noValid()
 	currentInstance = nil
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -152,7 +151,7 @@ function test.notestPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipp
 	assertEquals( "45579", myGear[tabardSlot] )
 	assertTrue( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_08_inInstance_linkOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_08_inInstance_linkOutside_hasEquipped_noValid()
 	currentInstance = 14
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -213,6 +212,115 @@ function test.testUNIT_INVENTORY_CHANGED_05_linkOutside_hasEquipped()
 
 	TT.UNIT_INVENTORY_CHANGED()
 	assertEquals( "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r", TT_outsideTabard )
+end
+
+function test.testFactionInfo_nil()
+	assertIsNil( TT.GetFactionInfo() )
+end
+function test.testFactionInfo_fName()
+	fName = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "Stormwind", fName )
+end
+function test.testFactionInfo_fDescription()
+	_, fDescription = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "", fDescription )
+end
+function test.testFactionInfo_fStandingStr()
+	_, _, fStandingStr = TT.GetFactionInfo( "Stormwind" )
+	assertEquals( "Revered", fStandingStr )
+end
+function test.testFactionInfo_fBarBottomValue()
+	fBarBottomValue = select(4, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 0, fBarBottomValue )
+end
+function test.testFactionInfo_fBarTopValue()
+	fBarTopValue = select(5, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 21000, fBarTopValue )
+end
+function test.testFactionInfo_fBarEarnedValue()
+	fBarEarnedValue = select(6, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 12397, fBarEarnedValue )
+end
+function test.testFactionInfo_fAtWarWith()
+	fAtWarWith = select(7, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fAtWarWith )
+end
+function test.testFactionInfo_fCanToggleAtWar()
+	fCanToggleAtWar = select(8, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fCanToggleAtWar )
+end
+function test.testFactionInfo_fIsHeader()
+	fIsHeader = select(9, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsHeader )
+end
+function test.testFactionInfo_fIsHeader_header()
+	-- GetFactionInfo does not return values if it is a header
+	fIsHeader = select(9, TT.GetFactionInfo( "Alliance" ) )
+	assertFalse( fIsHeader )
+end
+function test.testFactionInfo_fIsCollapsed()
+	fIsCollapsed = select(10, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsCollapsed )
+end
+function test.testFactionInfo_fIsWatched()
+	fIsWatched = select(11, TT.GetFactionInfo( "Stormwind" ) )
+	assertFalse( fIsWatched )
+end
+function test.testFactionInfo_factionIndex()
+	factionIndex = select(12, TT.GetFactionInfo( "Stormwind" ) )
+	assertEquals( 4, factionIndex )
+end
+function test.testFactionInfo_ExpandsHeaders()
+	FactionInfo[1].isCollapsed = true
+	FactionInfo[3].isCollapsed = true
+	fName = TT.GetFactionInfo( "Stormwind" ) -- 4th faction
+	assertEquals( "Stormwind", fName )	-- found the faction
+	assertFalse( FactionInfo[3].isCollapsed ) -- assert that it is not collapsed
+end
+function test.testGetFreeBag_onlyBackPack()
+	-- default is to only have the backpack equiped
+	local bagID = TT.getFreeBag()
+	assertEquals( 0, bagID )
+end
+function test.testGetFreeBag_2Bags()
+	bagInfo[1] = {10, 0}
+	local bagID = TT.getFreeBag()
+	bagInfo[1] = nil
+	assertEquals( 1, bagID )
+end
+function test.testGetFreeBag_2Bags_firstIsFull()
+	bagInfo[1] = {0, 0}
+	local bagID = TT.getFreeBag()
+	bagInfo[1] = nil
+	assertEquals( 0, bagID )
+end
+function test.testGetFreeBag_2Bags_bothAreFull()
+	bagInfo[1] = {0, 0}
+	bagInfo[0] = {0, 0}
+	local bagID = TT.getFreeBag()
+	bagInfo[1] = nil
+	bagInfo[0] = {16, 0}
+	assertIsNil( bagID )
+end
+function test.testPLAYER_ENTERING_WORLD_noInstance_noEquippedTabard()
+	-- changing zones?  -- no tabard should be equipped.
+	currentInstance = nil
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	assertIsNil( equippedTabbardLink )
+end
+function test.testPLAYER_ENTERING_WORLD_inInstance_noEquippedTabard()
+	-- just entering an instance
+	currentInstance = 5
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	assertTrue( equippedTabbardLink )
+end
+function test.testPLAYER_ENTERING_WORLD_inInstance_hasEquippedTabard()
+	currentInstance = 5
+	TT.PLAYER_ENTERING_WORLD()
+	local equippedTabbardLink = GetInventoryItemLink( "player", GetInventorySlotInfo( "TabardSlot" ) )
+	--assertTrue( equippedTabbardLink )
 end
 
 test.run()
