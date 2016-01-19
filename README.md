@@ -6,7 +6,7 @@ Tabard Tell
 
 This addon shows the faction's reputation in the tooltip for the respective tabard.
 
-As of v0.8, it will also find and equip a tabard in your inventory with the lowest reuputation.
+As of v0.8, it will also find and equip a tabard in your inventory with the lowest reputation.
 This is optional, and can be turned off.
 
 ## Idea:
@@ -15,10 +15,12 @@ And it just sort of made sense.
 
 ## Goals:
 * Simple to use addon
-* No configuration
+* Little to No configuration
 
 ## How to use:
 Install the addon, mouse over a tabard in your inventory.
+
+Enable swapping and carry your tabards with you.
 
 ## Known bugs:
 The equip does not work if you zone into a dungeon, and the dungeon group is in combat.
@@ -41,3 +43,9 @@ Or to check for reasons why it cannot be equipped and equip it after those reaso
        Super Simple configuration system to turn it on or off.
 0.7.1  WoD update
 0.7    Last version before WoD
+0.4    Fixed a bug with faction headers being folded, therefore being 'hidden'
+0.3b   Fix a bug if the tooltip for not for an item.
+0.2b   Found and fixed a bug with which line the "Equip:" text is in.
+0.1b   Initial version
+       Standing # / # (%)  into the tooltip for a faction tabard.
+```
