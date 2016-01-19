@@ -20,25 +20,22 @@ TTFrame = CreateFrame()
 function test.before()
 end
 function test.after()
+	globals.GameTooltipTextLeft5 = nil
 end
 
 -- these tests only examine the RE for finding the faction name
 function test.testFactionFilter_noThe()
-	globals = {
-		["GameTooltipTextLeft5"] = { ["GetText"] = function()
+	globals.GameTooltipTextLeft5 = { ["GetText"] = function()
 			return "Equip: You champion the cause of Darnassus. All reputation gains while in dungeons will be applied to your standing with them."
-		end, },
-	}
+		end, }
 	local actual = TT.GetEquipTextFromToolTip()
 	_, _, TT.faction = strfind(actual, TT.TABARD_FACTION_FILTER);
 	assertEquals( "Darnassus", TT.faction )
 end
 function test.testFactionFilter_withThe()
-	globals = {
-		["GameTooltipTextLeft5"] = { ["GetText"] = function()
+	globals.GameTooltipTextLeft5 = { ["GetText"] = function()
 			return "Equip: You champion the cause of the Bilgewater Cartel. All reputation gains while in dungeons will be applied to your standing with them."
-		end, },
-	}
+		end, }
 	local actual = TT.GetEquipTextFromToolTip()
 	_, _, TT.faction = strfind(actual, TT.TABARD_FACTION_FILTER);
 	assertEquals( "Bilgewater Cartel", TT.faction)
@@ -65,7 +62,10 @@ end
 -- 07 | False      | Link             | True              | False            | TT_outsideTabard = Link, equipped = Link, UIC registered
 -- 08 | True       | Link             | True              | False            | TT_outsideTabard = Link, probably keep tabard, UIC not registered
 -- 09 | False      | nil              | False             | True             | TT_outsideTabard = nil, UIC registered
--- 10 | True       | nil              | False             | True
+-- 10 | True       | nil              | False             | True             | TT_outsideTabard = nil, tabard is equipped
+-- 11 | False      | Link             | False             | True             | TT_outsideTabard = Link, equipped = Link, UIC registered
+-- 12 | True       | Link             | False             | True             | TT_outsideTabard = Link, equip
+--
 
 function test.testPLAYER_ENTERING_WORLD_01_notInInstance_nilOutside_noEquipped_noValid()
 	currentInstance = nil
@@ -90,7 +90,7 @@ function test.testPLAYER_ENTERING_WORLD_02_inInstance_nilOutside_noEquipped_noVa
 	assertIsNil( TT_outsideTabard, "Nothing equipped when entering." )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_03_notInInstance_linkOutside_noEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_03_notInInstance_linkOutside_noEquipped_noValid()
 	-- Tossed the tabard out while inside the dungeon?
 	currentInstance = nil
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
@@ -115,7 +115,7 @@ function test.testPLAYER_ENTERING_WORLD_04_inInstance_linkOutside_noEquipped_noV
 	assertIsNil( myGear[tabardSlot], "None should be equipped." )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_noValid()
 	currentInstance = nil
 	TT_outsideTabard = nil
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -127,7 +127,7 @@ function test.notestPLAYER_ENTERING_WORLD_05_notInstance_nilOutside_hasEquipped_
 	assertIsNil( myGear[tabardSlot], "Equipped tabard should be cleared." )
 	assertTrue( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_noValid()
 	currentInstance = 14
 	TT_outsideTabard = nil
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -139,7 +139,7 @@ function test.notestPLAYER_ENTERING_WORLD_06_inInstance_nilOutside_hasEquipped_n
 	assertEquals( "45579", myGear[tabardSlot] )
 	assertIsNil( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should not be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipped_noValid()
 	currentInstance = nil
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
@@ -151,7 +151,7 @@ function test.notestPLAYER_ENTERING_WORLD_07_notInInstance_linkOutside_hasEquipp
 	assertEquals( "45579", myGear[tabardSlot] )
 	assertTrue( TTFrame.Events.UNIT_INVENTORY_CHANGED, "UNIT_INVENTORY_CHANGED should be registered." )
 end
-function test.notestPLAYER_ENTERING_WORLD_08_inInstance_linkOutside_hasEquipped_noValid()
+function test.testPLAYER_ENTERING_WORLD_08_inInstance_linkOutside_hasEquipped_noValid()
 	currentInstance = 14
 	TT_outsideTabard = "|cffffffff|Hitem:45579:0:0:0:0:0:0:0:14:258:0:0:0|h[Darnassus Tabard]|h|r"
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
