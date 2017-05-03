@@ -13,8 +13,12 @@ local itemDB = {
 }
 
 -- simulate an internal inventory
---myInventory = { ["9999"] = 52, }
+-- myInventory = { ["9999"] = 52, }
+		-- myInventory = { ["9999"] = {52, 0, 1}, }
+		-- myInventory = { ["<itemID"] = {<count>, <bagID>, <slotID>}, }
 myInventory = {}
+-- bagInfo is the info about the containers themselves
+-- bagInfo = {<size>, <type>}
 bagInfo = {
 	[0] = {16, 0},
 }
@@ -85,6 +89,12 @@ TaxiNodes = {
 	{["name"] = "Ironforge", ["type"] = "NONE", ["hops"] = 1, ["cost"]=1000},
 }
 Currencies = {
+	["1"] = { ["name"] = "Currency Token Test Token 4", ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = false, ["link"] = "|cffffffff|Hcurrency:1|h[Currency Token Test Token 4]|h|r"},
+	["384"] = { ["name"] = "Dwarf Archaeology Fragment", ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 200, isDiscovered = true, ["link"] = "|cff9d9d9d|Hcurrency:384:0:0:0:0:0:0:0:80:0:0|h[Dwarf Archaeology Fragment]|h|r"},
+	["390"] = { ["name"] = "Conquest", ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = true, ["link"] = ""},
+	["392"] = { ["name"] = "Honor",    ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = true, ["link"] = ""},
+	["395"] = { ["name"] = "Justice",  ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = true, ["link"] = ""},
+	["396"] = { ["name"] = "Valor",    ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = true, ["link"] = ""},
 	["402"] = { ["name"] = "Ironpaw Token", ["texturePath"] = "", ["weeklyMax"] = 0, ["totalMax"] = 0, isDiscovered = true, ["link"] = "|cff9d9d9d|Hcurrency:402:0:0:0:0:0:0:0:80:0:0|h[Ironpaw Token]|h|r"},
 	["703"] = { ["name"] = "Fictional Currency", ["texturePath"] = "", ["weeklyMax"] = 1000, ["totalMax"] = 4000, isDiscovered = true, ["link"] = "|cffffffff|Hcurrency:703|h[Fictional Currency]|h|r"},
 }
@@ -111,13 +121,55 @@ TradeSkillItems = {
 		},
 	},
 }
+Achievements = {
+	["10722"] = {
+		["link"] = "|cffffff00|Hachievement:10722:Player-3661-06DAB4ED:0:0:0:-1:524288:0:0:0|h[The Wish Remover]|h|r",
+		["criteria"] = {
+			{ 	["description"] = "Broken Fang thingy",
+				["type"] = 36,
+				["completed"] = false,
+				["quantity"] = 0,
+				["reqQuantity"] = 1,
+				["charName"] = "",
+				["flags"] = nil,
+				["assetID"] = "7073",
+				["quantityString"] = "string",
+				["criteriaID"] = "id",
+			},
+			{	["description"] = "string",
+				["type"] = 36,
+				["completed"] = false,
+				["quantity"] = 0,
+				["reqQuantity"] = 1,
+				["charName"] = "",
+				["flags"] = nil,
+				["assetID"] = "6742",
+				["quantityString"] = "string",
+				["criteriaID"] = "id",
+			}
+		},
+		["name"] = "The Wish Remover",
+		["points"] =10,
+		["completed"] = false,
+		["month"] = nil,
+		["day"] = nil,
+		["year"] = nil,
+		["description"] = "Fishing in Dalaran fountain (again)",
+		["flags"] = 0x00000000,
+		["icon"] = "",
+		["rewardText"] = "",
+		["isGuildAch"] = false,
+		["wasEarnedByMe"] = false,
+		["earnedBy"] = ""
+	}
+}
 -- EquipmentSets is an array (1 based numeric key table)
 EquipmentSets = {
 	{["name"] = "testSet", ["icon"] = "icon", ["items"] = {[1] = "113596"},},
 }
 -- WowToken
 TokenPrice = 123456 -- 12G 34S 45C
--- Factions
+--- Factions
 globals.FACTION_STANDING_LABEL1 = "Hated"
 globals.FACTION_STANDING_LABEL2 = "Hostile"
 globals.FACTION_STANDING_LABEL3 = "Unfriendly"
@@ -149,6 +201,38 @@ FactionInfo = {
 		["isWatched"] = true, ["isChild"] = true, ["factionID"] = 72, ["hasBonusRepGain"] = false, ["canBeLFGBonus"] = false,
 	},
 }
+--Auras
+-- IIRC (Look this up) Auras are index based, use an index based system
+-- ["unit"] = { [1] = { ["Fishing"] = true }}
+UnitAuras = {}
+--UnitAuras = {["player"] = { { ["Fishing"] = true } } }
+-- 'support' code for setting / clearing auras
+function wowSetAura( unit, auraName )
+	if (UnitAuras[unit]) then
+		for i, auras in pairs( UnitAuras[unit] ) do
+			if ( auras[auraName] ) then
+				return
+			end
+		end
+		table.insert( UnitAuras[unit], { { [auraName] = true } } )
+	else  -- unknown unit
+		UnitAuras[unit] = { { [auraName] = true } }
+	end
+end
+function wowClearAura( unit, auraName )
+	if UnitAuras[unit] then
+		for i, aura in pairs( UnitAuras[unit] ) do
+			for aname in pairs( aura ) do
+				if (aname == auraName) then
+					UnitAuras[unit][i] = nil
+				end
+			end
+		end
+		if (#UnitAuras[unit] == 0) then
+			UnitAuras[unit] = nil
+		end
+	end
+end
 
 -- WOW's function renames
 strmatch = string.match
@@ -159,8 +243,44 @@ time = os.time
 date = os.date
 max = math.max
 min = math.min
+abs = math.abs
 random = math.random
 tinsert = table.insert
+
+bit = {}
+function bit.lshift( x, by )
+	return x * 2 ^ by
+end
+function bit.rshift( x, by )
+	return math.floor( x / 2 ^ by )
+end
+function bit.bor( a, b )  -- bitwise or
+	local p,c=1,0
+	while a+b>0 do
+		local ra,rb=a%2,b%2
+		if ra+rb>0 then c=c+p end
+		a,b,p=(a-ra)/2,(b-rb)/2,p*2
+	end
+	return c
+end
+function bit.band( a, b ) -- bitwise and
+	local p,c=1,0
+	while a>0 and b>0 do
+		local ra,rb=a%2,b%2
+		if ra+rb>1 then c=c+p end
+		a,b,p=(a-ra)/2,(b-rb)/2,p*2
+	end
+	return c
+end
+function bit.bnot( n )  -- bitwise not
+	local p,c=1,0
+	while n>0 do
+		local r=n%2
+		if r<1 then c=c+p end
+		n,p=(n-r)/2,p*2
+	end
+	return c
+end
 
 -- WOW's functions
 function getglobal( globalStr )
@@ -347,6 +467,18 @@ function EquipItemByName( itemIn, slotIDIn )
 	-- slot: number (optional: where to place it)
 	local itemID = __getItemID( itemIn )
 	local slotID
+	if tonumber(itemIn) then -- got the itemID
+		itemID = itemIn
+	elseif strmatch( itemIn, "item:(%d*)" ) then -- got an ItemString or ItemLink
+		itemID = string.format("%s", strmatch( itemIn, "item:(%d*)" ) )
+	else -- Anything else, treat it as an ItemName.
+		for ID, data in pairs(Items) do
+			if itemIn == data.name then
+				itemID = ID
+				break  -- break the loop once the item is found.
+			end
+		end
+	end
 	--print(itemID,type(itemID),(slotIDIn or "nil"))
 	-- look for the item in inventory
 	if myInventory[itemID] then -- is in inventory
@@ -385,6 +517,28 @@ function GetAccountExpansionLevel()
 	-- returns 0 to 4 (5)
 	return accountExpansionLevel
 end
+function GetAchievementCriteriaInfo( ID, criteriaNum )
+	-- criteriaString, criteriaType, completed, quantity, reqQuantity,
+	-- charName, flags, assetID, quantityString, criteriaID =
+	-- GetAchievementCriteriaInfo(criteriaID or achievementID, criteriaNum);
+	if criteriaNum then
+		achievementID = ID
+		if Achievements[achievementID] then
+			achievementInfo = Achievements[achievementID]
+			info = achievementInfo["criteria"][criteriaNum]
+			return info.description, info.type, info.completed, info.quantity, info.reqQuantity, info.charName,
+					info.flags, info.assetID, info.quantityString, info.criteriaID
+		end
+	end
+end
+--[[
+function GetAchievementCriteriaInfoByID( criteriaID )
+	-- criteriaString, criteriaType, completed, quantity, reqQuantity,
+	-- charName, flags, assetID, quantityString, criteriaID, eligible =
+	-- GetAchievementCriteriaInfoByID(achievementID, criteriaID)
+	return "string","36",3,4,5,6,7
+end
+--]]
 function GetAchievementInfo( id, index )
 	-- http://wowprogramming.com/docs/api/GetAchievementInfo
 	-- Arguments:
@@ -408,9 +562,22 @@ function GetAchievementInfo( id, index )
 	-- isGuildAch: True if the achievement is a Guild achievement; otherwise false (boolean)
 	-- wasEarnedByMe: True if the achievement was earned by the player; otherwise false (boolean)
 	-- earnedBy: Who earned the achivement, if not the player; otherwise nil (string)
+	if index then
+		category = id
+		-- Find the id to actually work with
+	end
+	achiveInfo = Achievements[id]
 
+	return id, achiveInfo['name'], achiveInfo['points'], achiveInfo['completed'], achiveInfo['month'], achiveInfo['day'], achiveInfo['year'],
+		achiveInfo['description'], achiveInfo['flags'], achiveInfo['icon'], achiveInfo['rewardText'], achiveInfo['isGuildAch'],
+		achiveInfo['wasEarnedByMe'], achiveInfo['earnedBy']
 end
-
+function GetAchievementNumCriteria( achievementID )
+	-- numCriteria = GetAchievementNumCriteria(AchievementID)
+	if Achievements[achievementID] then
+		return #Achievements[achievementID]["criteria"]
+	end
+end
 function GetAddOnMetadata(addon, field)
 	-- returns addonData[field] for 'addon'
 	-- local addonData = { ["version"] = "1.0", }
@@ -462,25 +629,33 @@ function GetContainerNumFreeSlots( bagId )
 	end
 end
 function GetContainerNumSlots( bagId )
-	-- @TODO: Research this.
+	-- http://wowwiki.wikia.com/wiki/API_GetContainerNumSlots
+	-- returns the number of slots in the bag, or 0 if no bag
 	if bagInfo[bagId] then
 		return bagInfo[bagId][1]
 	else
 		return 0
 	end
 end
-function GetCurrencyInfo( id ) -- id is string
+function GetCurrencyInfo( id ) -- id is integer, currencyLink, currencyString
+	-- integer, link, "currency:###"
 	-- http://wowprogramming.com/docs/api/GetCurrencyInfo
 	-- returns name, amount, texturePath, earnedThisWeek, weeklyMax, totalMax, isDiscovered
+	id = tostring(id)
 	if Currencies[id] then
 		local c = Currencies[id]
 		return c["name"], (myCurrencies[id] or 0), "", 0, c["weeklyMax"], c["totalMax"], true
 	end
 end
 function GetCurrencyLink( id )
+	id = tostring(id)
 	if Currencies[id] then
 		return Currencies[id].link
 	end
+end
+function GetCurrencyListSize()
+	-- @TODO
+	return #Currencies
 end
 function GetEquipmentSetItemIDs( setName )
 	-- http://wowprogramming.com/docs/api/GetEquipmentSetItemIDs
@@ -514,6 +689,9 @@ function GetFactionInfo( index )
 	local f = FactionInfo[ index ]
 	return f.name, f.description, f.standingID, f.bottomValue, f.topValue, f.earnedValue, f.atWarWith, f.canToggleAtWar,
 			f.isHeader, f.isCollapsed, f.hasRep, f.isWatched, f.isChild, f.factionID, f.hasBonusRepGain, f.canBeLFGBonus
+end
+function GetHaste()
+	return 15.42345
 end
 function GetInventoryItemID( unitID, invSlot )
 	-- http://www.wowwiki.com/API_GetInventoryItemID
@@ -558,6 +736,9 @@ function GetItemInfo( itemIn )
 	if Items[itemID] then
 		return Items[itemID].name, Items[itemID].link
 	end
+end
+function GetMastery()
+	return 21.3572
 end
 function GetMerchantItemCostInfo( index )
 	-- returns count of alterate items needed to purchase an item
@@ -616,6 +797,41 @@ end
 function GetMoney()
 	return myCopper
 end
+function GetNumArchaeologyRaces()
+	return 1
+--[[
+/run print("Total artifacts"); for x=1,12 do local c=GetNumArtifactsByRace(x); local a =0;
+for y=1,c do local t = select(9, GetArtifactInfoByRace(x, y)); a=a+t;end
+local rn = GetArchaeologyRaceInfo(x); if( c > 1 ) then print(rn .. ": " .. a); end end
+
+
+numRaces = GetNumArchaeologyRaces()
+
+Returns:
+
+    numRaces - The number of Archaeology races in the game (number)
+]]
+end
+function GetArchaeologyRaceInfo( index )
+--[[
+
+raceName, raceTexture, raceItemID, numFragmentsCollected, numFragmentsRequired, maxFragments = GetArchaeologyRaceInfo(raceIndex)
+
+Arguments:
+
+    raceIndex - nil (number, GetNumArchaeologyRaces())
+
+Returns:
+
+    raceName - Name of the race (string)
+    raceTexture - Path to the texture (icon) used by this race in the Archaeology UI (string)
+    raceItemID - The itemID for the Keystone this race uses (number)
+    numFragmentsCollected - Number of collected fragments for this race (number)
+    numFragmentsRequired - Number of fragments required to solve the current artifact (number)
+    maxFragments - Maximum number of fragments that can be carried (number)
+]]
+	return "Dwarf", "", 384, 0, 100, 200
+end
 function GetNumEquipmentSets()
 	-- http://www.wowwiki.com/API_GetNumEquipmentSets
 	-- Returns 0,MAX_NUM_EQUIPMENT_SETS
@@ -644,12 +860,13 @@ function GetNumRoutes( nodeId )
 	-- returns numHops
 	return TaxiNodes[nodeId].hops
 end
-function GetNumTradeSkills( )
-	-- returns number of lines in the tradeskill window to show
-	local count = 0
-	for _ in pairs( TradeSkillItems ) do count = count + 1 end
-	return count
-end
+-- GetNumTradeSkills is deprecated
+--function GetNumTradeSkills( )
+--	-- returns number of lines in the tradeskill window to show
+--	local count = 0
+--	for _ in pairs( TradeSkillItems ) do count = count + 1 end
+--	return count
+--end
 function GetRaidRosterInfo( raidIndex )
 	-- http://www.wowwiki.com/API_GetRaidRosterInfo
 	-- returns name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML
@@ -788,6 +1005,9 @@ function PickupInventoryItem( slotID )
 		onCursor['fromSlot'] = slotID
 	end
 end
+function PlaySound( sound, channel )
+	-- http://wowwiki.wikia.com/wiki/API_PlaySound
+end
 function PlaySoundFile( file )
 	-- does nothing except play a sound.  Do not test.
 end
@@ -875,11 +1095,30 @@ function TaxiNodeGetType( nodeId )
 	-- http://www.wowwiki.com/API_TaxiNodeGetType
 	return TaxiNodes[nodeId].type
 end
+function UnitAura( unit, auraName )
+	-- @TODO: Look this up to get a better idea of what this function does.
+	-- Returns True or nil
+	if (UnitAuras[unit]) then
+		for i, auras in pairs(UnitAuras[unit]) do
+			if auras[auraName] then
+				return true
+			end
+		end
+	end
+	--print("UnitAura did not find "..auraName)
+end
 function UnitClass( who )
 	local unitClasses = {
 		["player"] = "Warlock",
 	}
 	return unitClasses[who]
+end
+function UnitHealthMax( who )
+	-- http://wowwiki.wikia.com/wiki/API_UnitHealth
+	local unitHealth = {
+		["player"] = {["current"] = 100000, ["max"] = 123456},
+	}
+	return unitHealth[who].max
 end
 function UnitFactionGroup( who )
 	-- http://www.wowwiki.com/API_UnitFactionGroup
@@ -896,6 +1135,11 @@ function UnitName( who )
 		["player"] = "testPlayer",
 	}
 	return unitNames[who]
+end
+function UnitPowerMax( who, powerType )
+	-- http://wowwiki.wikia.com/wiki/API_UnitPowerMax
+	-- VERY simplified version of this function for now.
+	return 12345
 end
 function UnitRace( who )
 	local unitRaces = {
@@ -927,3 +1171,36 @@ function C_WowTokenPublic.UpdateMarketPrice()
 	-- this has the system query the market price, and fire the TOKEN_MARKET_PRICE_UPDATED event
 	-- has no other side effects
 end
+----------
+C_TradeSkillUI = {}
+function C_TradeSkillUI.GetAllRecipeIDs()
+	-- returns an array of RecipeIDs
+end
+function C_TradeSkillUI.GetAllRecipeLink(recipeID)
+end
+function C_TradeSkillUI.GetRecipeInfo(recipeID)
+	--disabled : boolean
+	--type : string
+	--hiddenUnlessLearned : boolean
+	--icon : number
+	--craftable : boolean
+	--numSkillUps : number
+	--recipeID : number
+	--sourceType : number
+	--numIndents : number
+	--difficulty : string
+	--name : string
+	--numAvailable : string
+	--learned : boolean
+	--favorite : boolean
+	--categoryID : number
+end
+function C_TradeSkillUI.GetRecipeTools( recipeID )
+	--ordered
+	--name : string
+	--has : boolean
+end
+--http://wow.gamepedia.com/Patch_7.0.3/API_changes
+
+--/script for k,v in pairs(C_TradeSkillUI.GetAllRecipeIDs()) do print(k..":"..v) end
+--/script for k,v in pairs(C_TradeSkillUI.GetAllRecipeIDs()) do print(k..":"..v) end
