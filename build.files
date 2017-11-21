@@ -1,0 +1,5 @@
+src/*.lua
+src/*.xml
+src/*.toc
+README.md
+**/changelog.txt

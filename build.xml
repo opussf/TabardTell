@@ -5,7 +5,7 @@
 	<property environment="env"/>
 	<property name="env.BUILD_NUMBER" value=""/>
 	<property name="build.number" value=""/>
-	<property name="addon.dir" location="/Applications/World of Warcraft/Interface/Addons/${ant.project.name}"/>
+	<property name="addon.dir" location="${ADDONLOC}/${ant.project.name}"/>
 	<!--  Pull git repo info -->
 	<!-- Get the last tag reachable from this branch -->
 	<exec executable="git" dir="." outputproperty="git.tag" failifexecutionfails="false" errorproperty="">
@@ -22,9 +22,19 @@
 		</and>
 	</condition>
 	<!-- find gitbranch -->
-	<exec executable="git" dir="." outputproperty="git.branch" failifexecutionfails="false" errorproperty="">
+	<exec executable="git" dir="." outputproperty="git.branch.tmp" failifexecutionfails="false" errorproperty="">
 		<arg line="rev-parse --abbrev-ref HEAD"/>
 	</exec>
+	<!-- replace '/' in branch name with '_' -->
+	<loadresource property="git.branch">
+		<propertyresource name="git.branch.tmp"/>
+		<filterchain>
+			<tokenfilter>
+				<replacestring from="/" to="_"/>
+			</tokenfilter>
+		</filterchain>
+	</loadresource>
+	<!-- assign the git.branch to the branch property -->
 	<condition property="branch" value="-${git.branch}" else="">
 		<and>
 			<isset property="git.branch"/>
@@ -56,11 +66,7 @@
 	<filter token="INTERFACE" value="${INTERFACE}"/>
 
 	<patternset id="packageFiles">
-
-		<include name="src/*.xml"/>
-		<include name="src/*.toc"/>
-		<include name="src/*.lua"/>
-		<include name="README.md"/>
+		<includesfile name="build.files"/>
 	</patternset>
 
 <!-- -->
@@ -70,14 +76,16 @@
 
 	<target name="changelog" description="Creates a changelog">
 		<mkdir dir="${working.dir}"/>
+		<echo file="${working.dir}/changelog.txt">Changes since ${git.tag}..${line.separator}${line.separator}</echo>
 		<exec executable="git" dir=".">
 			<arg line="log --graph --pretty=format:'%h %ci - %d %s &lt;%an&gt;' ${git.tag}.."/>
-			<redirector output="${working.dir}/changelog.txt"/>
+			<redirector append="true" output="${working.dir}/changelog.txt"/>
 		</exec>
 	</target>
 
 	<target name="package" depends="changelog, test" description="Create a deploy package">
 		<property name="package.dir" location="${working.dir}/${ant.project.name}"/>
+		<delete dir="${package.dir}" verbose="false"/>
 		<copy	todir="${package.dir}" filtering="true" flatten="true">
 			<fileset dir=".">
 				<patternset refid="packageFiles"/>
@@ -86,7 +94,6 @@
 		<zip 	destfile="${target.dir}/${project.zip}"
 				basedir="${working.dir}"
 				includes="${ant.project.name}/**"/>
-		<delete dir="${package.dir}" verbose="false"/>
 		<checksum file="${target.dir}/${project.zip}"
 				  property="zip.md5" />
 		<echo file="${target.dir}/${project.zip}.md5">${zip.md5} ${project.zip}${line.separator}</echo>
@@ -130,21 +137,14 @@
 		</fail>
 	</target>
 
-	<target name="deploy" depends="deploy.check" description="deploys the file" if="deploy.run">
-		<copy todir="${deploy.dir}">
-			<fileset dir="${deploy.from}">
-				<include name="*.zip"/>
-			</fileset>
+	<target name="curse" depends="package" description="Copy files to the local curseforge path">
+		<property name="curse.dir" location="${ant.project.name}-cf"/>
+		<copy todir="${curse.dir}">
+			<fileset dir="${package.dir}"/>
 		</copy>
-	</target>
-
-	<target name="deploy.check">
-		<condition property="deploy.run">
-			<and>
-				<available file="${deploy.from}" type="dir"/>
-				<available file="${deploy.dir}" type="dir"/>
-			</and>
-		</condition>
+		<exec executable="git" dir="${curse.dir}" failifexecutionfails="true" errorproperty="">
+			<arg line="status" />
+		</exec>
 	</target>
 
 </project>
