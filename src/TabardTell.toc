@@ -1,5 +1,5 @@
+## Title: TabardTell v@VERSION@
 ## Interface: @INTERFACE@
-## Title: TabardTell
 ## Notes: Shows your current rep for the Tabard faction in the tooltip (@VERSION@)
 ## Author: sistersally of hyjal
 ## Version: @VERSION@

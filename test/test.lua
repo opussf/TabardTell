@@ -80,7 +80,11 @@ function test.testPLAYER_ENTERING_WORLD_01_notInInstance_nilOutside_noEquipped_n
 
 end
 function test.testPLAYER_ENTERING_WORLD_02_inInstance_nilOutside_noEquipped_noValid()
+	for k, v in pairs( TTFrame.Events ) do
+		print( k..":"..( v and "true" or "false" ) )
+	end
 	currentInstance = 14
+	myParty = { ["instance"] = true }
 	TT_outsideTabard = nil
 	tabardSlot = GetInventorySlotInfo("TabardSlot")
 	myGear[tabardSlot] = nil

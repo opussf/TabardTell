@@ -30,9 +30,10 @@ end
 
 function TT.GetEquipTextFromToolTip()
 	for _,i in pairs(TT.lines) do
-		TT.text = getglobal("GameTooltipTextLeft"..i):GetText();
+		TT.Print(i)
+		TT.text = getglobal("GameTooltipTextLeft"..i):GetText()
 		if TT.text and strfind(TT.text, TT.TABARD_EQUIP_FILTER) then
-			return TT.text;
+			return TT.text
 		end
 	end
 end
